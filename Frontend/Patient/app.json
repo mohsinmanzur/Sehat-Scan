@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "SehatScan",
+    "slug": "sehatscan",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#020617"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.sehatscan.patient",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#020617"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "08842b17-c0b6-4540-846d-8e5f6e537fa3"
+      }
+    }
+  }
+}
