@@ -9,7 +9,8 @@ Sehat Scan bridges the gap between patients and doctors by focusing on reports d
 
 - [Project Proposal](https://docs.google.com/document/d/1ubjg1Bi71nlU-PR22TMO6XYPR5IMrLRQcLmqK1MVJXo/edit?usp=sharing)
 - [Software Design Specifications (SDS)](https://docs.google.com/document/d/1zvdwuZ1yB1YbO9MyceIKoPD-juDlchHySzHNFyTxjd8/edit?tab=t.0)
-- [Software Requirement Specifications (SRS)](https://docs.google.com/document/d/1pswhDW967hvqNKTFjuvj73wh-M2bdwx-eTdV89orlRo/edit?tab=t.0) 
+- [Software Requirement Specifications (SRS)](https://docs.google.com/document/d/1pswhDW967hvqNKTFjuvj73wh-M2bdwx-eTdV89orlRo/edit?tab=t.0)
+- [LucidChart Diagrams](https://lucid.app/lucidchart/e2cdaad6-ec20-403a-a24c-97bcdf5462b5/edit?viewport_loc=-2237%2C1425%2C2418%2C1158%2C0_0&invitationId=inv_82a0da2d-59f8-428b-b267-a15bca78592f)
 
 ## Diagrams
 
