@@ -20,8 +20,8 @@ Sehat Scan bridges the gap between patients and doctors by focusing on reports d
 - **Backend**: NestJS, Node
 - **Cloud:** Microsoft Azure (Deployment), GitHub Actions (CI/CD)
 ## Contributors
-- Muhammad Mohsin [![mohsin github](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/github.svg)](https://github.com/mohsinmanzur) [![mohsin linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/mohsinmanzur/)
-- Syed Aadil Ahmed  [![aadil linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/syed-aadil-ahmed-7a3869269/)
-- Fabiha Ayela [![aadil linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/fabiha-ayela-456888272/)
+- Muhammad Mohsin [![mohsin github](https://github.com/CLorant/readme-social-icons/raw/main/small/light/github.svg)](https://github.com/mohsinmanzur) [![mohsin linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/mohsinmanzur/)
+- Syed Aadil Ahmed [![mohsin github](https://github.com/CLorant/readme-social-icons/raw/main/small/light/github.svg)](https://github.com/mohsinmanzur) [![aadil linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/syed-aadil-ahmed-7a3869269/)
+- Fabiha Ayela [![mohsin github](https://github.com/CLorant/readme-social-icons/raw/main/small/light/github.svg)](https://github.com/mohsinmanzur) [![aadil linkedin](https://github.com/CLorant/readme-social-icons/raw/main/small/filled/linkedin.svg)](https://www.linkedin.com/in/fabiha-ayela-456888272/)
 ---
 _Project developed at FAST National University, Karachi Campus, Department of CS._
