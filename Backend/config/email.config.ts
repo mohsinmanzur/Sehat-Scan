@@ -8,6 +8,6 @@ export default registerAs('email', () => ({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-  from: process.env.EMAIL_FROM || 'No Reply <no-reply@example.com>',
+  from: process.env.EMAIL_FROM || 'No Reply <no-reply@sehatscan.com>',
   appUrl: process.env.APP_URL || 'https://sehatscan-abgtfbb6cmgmgugr.uaenorth-01.azurewebsites.net/',
 }));
