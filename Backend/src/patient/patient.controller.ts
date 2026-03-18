@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Post, Put, Query } from '@nestjs/common';
 import { PatientService } from './patient.service';
-import { Patient } from 'src/entities/patient.entity';
+import { Patient } from '../entities/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Public()
 @Controller('patient')

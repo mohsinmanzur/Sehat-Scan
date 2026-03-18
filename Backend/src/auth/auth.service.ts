@@ -1,9 +1,9 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import refreshConfig from 'src/auth/config/refresh.config';
-import { Patient } from 'src/entities/patient.entity';
-import { PatientService } from 'src/patient/patient.service';
+import refreshConfig from '../auth/config/refresh.config';
+import { Patient } from '../entities/patient.entity';
+import { PatientService } from '../patient/patient.service';
 
 @Injectable()
 export class AuthService {

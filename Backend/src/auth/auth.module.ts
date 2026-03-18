@@ -11,11 +11,8 @@ import googleOauthConfig from './config/google-oauth.config';
 import { EmailService } from './services/email.service';
 import { OtpService } from './services/otp.service';
 import emailConfig from '../../config/email.config';
-import { PatientService } from 'src/patient/patient.service';
-import { Patient } from 'src/entities/patient.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
-import { PatientModule } from 'src/patient/patient.module';
+import { PatientModule } from '../patient/patient.module';
 import { GoogleAuthService } from './strategies/google-oauth.strategy';
 
 @Module({
