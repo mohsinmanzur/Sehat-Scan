@@ -1,20 +1,29 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { PatientModule } from './patient/patient.module';
 import dbConfig from 'config/db.config';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    AuthModule,
     ConfigModule.forRoot({ isGlobal: true, expandVariables: true }),
-    TypeOrmModule.forRootAsync({useFactory: dbConfig}),
-    UserModule
+    AuthModule,
+    PatientModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: dbConfig,
+    })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {provide: APP_GUARD, useClass: JwtAuthGuard}
+  ],
 })
 export class AppModule {}

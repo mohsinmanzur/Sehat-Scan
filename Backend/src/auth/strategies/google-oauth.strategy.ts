@@ -1,37 +1,51 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { Strategy, VerifyCallback } from "passport-google-oauth20";
-import googleOauthConfig from "../config/google-oauth.config";
-import type { ConfigType } from "@nestjs/config";
-import { AuthService } from "../auth.service";
+// google-auth.service.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { OAuth2Client } from 'google-auth-library';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'googleoauth')
-{
-  constructor(
-    @Inject(googleOauthConfig.KEY) private googleConfig: ConfigType<typeof googleOauthConfig>,
-    private readonly authService: AuthService
-  )
-  {
-    super({
-      clientID: googleConfig.clientID as string,
-      clientSecret: googleConfig.clientSecret  as string,
-      callbackURL: googleConfig.callbackURL as string,
-      scope: ['email', 'profile'],
-    });
-  }
-    async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback)
-    {
-        const user = await this.authService.validateGoogleUser({
-          username: profile.emails[0].value.split('@')[0],
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          password_hash: 'NULL_PASSWORD',
-          phone_number: '',
-          role: 'recipient',
-          auth_provider: 'Google'
-        });
+export class GoogleAuthService {
+  private client: OAuth2Client;
 
-        done(null, user);
+  constructor(private configService: ConfigService) {
+    // Uses the Web Client ID defined in your googleOAuth config
+    const clientId = process.env.GOOGLE_CLIENT_ID || this.configService.get<string>('googleOAuth.clientID');
+    this.client = new OAuth2Client(clientId);
+  }
+
+  async verifyGoogleToken(idToken: string) {
+    try {
+      const clientId = process.env.GOOGLE_CLIENT_ID || this.configService.get<string>('googleOAuth.clientID');
+      
+      const ticket = await this.client.verifyIdToken({
+        idToken: idToken,
+        audience: clientId, 
+      });
+
+      const payload = ticket.getPayload();
+      
+      if (!payload) {
+        throw new UnauthorizedException('Invalid Google token payload');
+      }
+
+      const { email, given_name, family_name, picture, sub: googleId } = payload;
+
+      // Database Logic Integration:
+      // 1. Query your DB to see if a user exists with this `email` or `googleId`
+      // 2. If no user exists, create a new record using the destructured data above
+      // 3. Return the user record
+
+      return {
+        email,
+        firstName: given_name,
+        lastName: family_name,
+        profileImage: picture,
+        googleId,
+      };
+
+    } catch (error) {
+      console.error('Error verifying Google Token:', error);
+      throw new UnauthorizedException('Failed to authenticate with Google');
     }
+  }
 }

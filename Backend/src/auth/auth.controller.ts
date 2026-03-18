@@ -1,10 +1,10 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth.guard';
-import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { EmailService } from './services/email.service';
 import { OtpService } from './services/otp.service';
+import { GoogleAuthService } from './strategies/google-oauth.strategy';
 
 @Public()
 @Controller('auth')
@@ -14,7 +14,8 @@ export class AuthController
   (
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
-    private readonly otpService: OtpService
+    private readonly otpService: OtpService,
+    private readonly googleAuthService: GoogleAuthService
   ) {}
 
   @Post('requestcode')
@@ -60,17 +61,19 @@ export class AuthController
     return this.authService.refresh(req.user.id);
   }
 
-  @UseGuards(GoogleAuthGuard)
-  @Get('google/verify')
-  async googleVerify() {}
-
-  @Public()
-  @UseGuards(GoogleAuthGuard)
-  @HttpCode(202)
-  @Get('google/callback')
-  async googleRedirect(@Req() req)
-  {
-    return await this.authService.signTokens(req.user.id);
-    //res.redirect(`https://naimat-backend-f9drh3fcceewebcd.southeastasia-01.azurewebsites.net/?token=${response.jwt}&refresh=${response.refresh}`);
+  @Post('google')
+  async googleLogin(@Body('idToken') idToken: string) {
+    // 1. Verify the frontend's token and retrieve/create the user
+    const userDetails = await this.googleAuthService.verifyGoogleToken(idToken);
+    
+    // 2. Generate your backend's internal JWT (using @nestjs/jwt)
+    //const appToken = this.jwtService.sign({ userId: userDetails.id });
+    
+    // 3. Return the payload to the React Native app
+    return {
+      message: 'Authentication successful',
+      user: userDetails,
+      // accessToken: appToken 
+    };
   }
 }

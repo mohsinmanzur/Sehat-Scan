@@ -1,19 +1,19 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { verify, hash } from 'argon2';
 import refreshConfig from 'src/auth/config/refresh.config';
-import { UserService } from 'src/user/user.service';
+import { Patient } from 'src/entities/patient.entity';
+import { PatientService } from 'src/patient/patient.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly userService: UserService,
+        private readonly patientService: PatientService,
         private readonly jwtService: JwtService,
         @Inject(refreshConfig.KEY) private refreshTokenConfig: ConfigType<typeof refreshConfig>
     ) { }
 
-    async signTokens(id: number)
+    async signTokens(id: string)
     {
         return {
             id,
@@ -29,25 +29,17 @@ export class AuthService {
         let jwt = this.jwtService.sign(payload);
 
         return { id, jwt };
-    }
+    }q
 
-    async validateGoogleUser(googleUser) {
-        const user = await this.userService.findbyemail(googleUser.email);
-        if (!user) return await this.userService.createUser(googleUser);
-        if (user.auth_provider !== 'Google') throw new UnauthorizedException("Error: Invalid authentication provider!");
+    async userinfofromemail(email: string): Promise<Patient> {
+        let patient = await this.patientService.getPatientByEmail(email);
+        if (!patient) throw new UnauthorizedException("Error: Email doesn't exist!");
 
-        return user;
-    }
-
-    async userinfofromemail(email: string): Promise<User> {
-        let user = await this.userService.findbyemail(email);
-        if (!user) throw new UnauthorizedException("Error: Email doesn't exist!");
-
-        return user;
+        return patient;
     }
 
     async checkEmailExists(email: string): Promise<boolean> {
-        const user = await this.userService.findbyemail(email);
-        return !!user; // Returns true if user exists, false otherwise
+        const patient = await this.patientService.getPatientByEmail(email);
+        return !!patient;
     }
 }
