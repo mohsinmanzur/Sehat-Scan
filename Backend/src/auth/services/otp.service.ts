@@ -37,7 +37,7 @@ export class OtpService {
     return { code, challengeId, expiresAt: rec.expiresAt };
   }
 
-  async verify(email: string, code: string, maxAttempts = 5)
+  async verify(email: string, code: string | number, maxAttempts = 5)
   {
     const key = this.key(email);
     const rec = (await this.cache.get<OtpRecord>(key)) || null;
@@ -60,7 +60,7 @@ export class OtpService {
       return fail();
     }
 
-    const ok = await argon2.verify(rec.codeHash, code);
+    const ok = await argon2.verify(rec.codeHash, String(code));
     if (!ok) return fail();
 
     await this.cache.del(key);

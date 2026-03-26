@@ -6,12 +6,13 @@ import { Patient } from '../entities/patient.entity';
 import { PatientService } from '../patient/patient.service';
 
 @Injectable()
-export class AuthService {
+export class AuthService
+{
     constructor(
         private readonly patientService: PatientService,
         private readonly jwtService: JwtService,
         @Inject(refreshConfig.KEY) private refreshTokenConfig: ConfigType<typeof refreshConfig>
-    ) { }
+    ) {}
 
     async signTokens(id: string)
     {
@@ -22,24 +23,12 @@ export class AuthService {
         };
     }
 
-    refresh(id: number)
+    refresh(id: string)
     {
         let payload = { sub: id };
 
         let jwt = this.jwtService.sign(payload);
 
         return { id, jwt };
-    }q
-
-    async userinfofromemail(email: string): Promise<Patient> {
-        let patient = await this.patientService.getPatientByEmail(email);
-        if (!patient) throw new UnauthorizedException("Error: Email doesn't exist!");
-
-        return patient;
-    }
-
-    async checkEmailExists(email: string): Promise<boolean> {
-        const patient = await this.patientService.getPatientByEmail(email);
-        return !!patient;
     }
 }

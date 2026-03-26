@@ -7,7 +7,6 @@ import emailConfig from '../../../config/email.config';
 export class EmailService
 {
   private transporter: nodemailer.Transporter;
-  private readonly logger = new Logger(EmailService.name);
 
   constructor(@Inject(emailConfig.KEY) private emailConfiguration: ConfigType<typeof emailConfig>)
   {
