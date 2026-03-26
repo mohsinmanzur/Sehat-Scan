@@ -1,7 +1,6 @@
-// App.tsx
 import React from 'react';
 import RootNavigator from '@navigation/RootNavigator';
-import { ThemeProvider } from '@theme/ThemeContext';
+import { ThemeProvider } from 'src/context/ThemeContext';
 import { UserProvider } from '@context/UserContext';
 
 const App: React.FC = () => {

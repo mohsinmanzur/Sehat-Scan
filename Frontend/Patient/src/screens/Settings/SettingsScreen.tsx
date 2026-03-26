@@ -7,13 +7,13 @@ import {
   Switch,
   TouchableOpacity,
 } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
 import { useCurrentPatient } from '@context/UserContext';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '@context/ThemeContext';
 
 const SettingsScreen: React.FC = () => {
-  const { theme, isDark, toggleTheme } = useAppTheme();
   const { currentPatient, setCurrentPatient } = useCurrentPatient();
+  const { theme, mode, setMode } = useTheme();
   const navigation = useNavigation<any>();
 
   const [aiInsightsEnabled, setAiInsightsEnabled] = useState(true);
@@ -29,34 +29,34 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
     >
       <View style={styles.safeTop} />
 
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
+        <Text style={[styles.title, { color: theme.text }]}>
           Settings
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.muted }]}>
+        <Text style={[styles.sectionTitle, { color: theme.muted }]}>
           Appearance
         </Text>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: theme.colors.text }]}>
+          <Text style={[styles.label, { color: theme.text }]}>
             Dark mode
           </Text>
-          <Switch value={isDark} onValueChange={toggleTheme} />
+          <Switch value={mode === 'dark'} onValueChange={() => {setMode(mode === 'dark' ? 'light' : 'dark')}} />
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.muted }]}>
+        <Text style={[styles.sectionTitle, { color: theme.muted }]}>
           AI & notifications
         </Text>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: theme.colors.text }]}>
+          <Text style={[styles.label, { color: theme.text }]}>
             AI-based insights
           </Text>
           <Switch
@@ -65,7 +65,7 @@ const SettingsScreen: React.FC = () => {
           />
         </View>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: theme.colors.text }]}>
+          <Text style={[styles.label, { color: theme.text }]}>
             Report processed notifications
           </Text>
           <Switch
@@ -76,13 +76,13 @@ const SettingsScreen: React.FC = () => {
       </View>
 
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.muted }]}>
+        <Text style={[styles.sectionTitle, { color: theme.muted }]}>
           Account
         </Text>
-        <Text style={[styles.label, { color: theme.colors.text }]}>
+        <Text style={[styles.label, { color: theme.text }]}>
           {currentPatient?.name ?? 'No active patient'}
         </Text>
-        <Text style={{ color: theme.colors.muted, fontSize: 13 }}>
+        <Text style={{ color: theme.muted, fontSize: 13 }}>
           {currentPatient?.email ?? 'Log in with a dummy account'}
         </Text>
       </View>
@@ -90,7 +90,7 @@ const SettingsScreen: React.FC = () => {
       <View style={styles.spacer} />
 
       <TouchableOpacity
-        style={[styles.logoutButton, { backgroundColor: theme.colors.danger }]}
+        style={[styles.logoutButton, { backgroundColor: theme.danger }]}
         onPress={handleLogout}
       >
         <Text style={styles.logoutLabel}>Logout</Text>

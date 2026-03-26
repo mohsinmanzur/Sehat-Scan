@@ -9,19 +9,19 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
-import { useAppTheme } from '@theme/ThemeContext';
 import { patients } from '@mock/patients';
 import { useCurrentPatient } from '@context/UserContext';
+import { useTheme } from '@context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
-    const { theme } = useAppTheme();
     const { setCurrentPatient } = useCurrentPatient();
     const [otp, setOtp] = useState('');
 
     const { patientId } = route.params;
     const patient = patients.find((p) => p.id === patientId);
+    const { theme } = useTheme();
 
     const handleVerify = () => {
         // Dummy OTP – accept anything
@@ -32,32 +32,32 @@ const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.safeTop} />
 
             <View style={styles.content}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>
+                <Text style={[styles.title, { color: theme.text }]}>
                     Verify OTP
                 </Text>
-                <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
+                <Text style={[styles.subtitle, { color: theme.muted }]}>
                     Enter any 6 digits to continue for {patient?.email}.
                 </Text>
 
                 <TextInput
                     style={[
                         styles.input,
-                        { borderColor: theme.colors.border, color: theme.colors.text },
+                        { borderColor: theme.border, color: theme.text },
                     ]}
                     value={otp}
                     onChangeText={setOtp}
                     placeholder="000000"
-                    placeholderTextColor={theme.colors.muted}
+                    placeholderTextColor={theme.muted}
                     keyboardType="numeric"
                     maxLength={6}
                 />
 
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.colors.primary }]}
+                    style={[styles.button, { backgroundColor: theme.primary }]}
                     onPress={handleVerify}
                 >
                     <Text style={styles.buttonLabel}>Continue</Text>

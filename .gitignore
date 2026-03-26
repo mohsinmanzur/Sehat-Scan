@@ -42,6 +42,12 @@ lerna-debug.log*
 /Backend/.env.production.local
 /Backend/.env.local
 
+/Frontend/Patient/.env
+/Frontend/Patient/.env.development.local
+/Frontend/Patient/.env.test.local
+/Frontend/Patient/.env.production.local
+/Frontend/Patient/.env.local
+
 # temp directory
 /Backend/.temp
 /Backend/.tmp

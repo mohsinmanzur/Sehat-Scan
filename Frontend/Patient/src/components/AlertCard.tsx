@@ -1,34 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Alert } from '@types/models';
-import { useAppTheme } from '@theme/ThemeContext';
+import { Alert } from '../types/models';
+import { useTheme } from '../context/ThemeContext';
 
 interface Props {
   alert: Alert;
 }
 
 const AlertCard: React.FC<Props> = ({ alert }) => {
-  const { theme } = useAppTheme();
+  const { theme } = useTheme();
 
   const severityColor =
     alert.severity === 'high'
-      ? theme.colors.danger
+      ? theme.danger
       : alert.severity === 'medium'
-      ? theme.colors.primary
-      : theme.colors.muted;
+      ? theme.primary
+      : theme.muted;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.card, borderColor: severityColor }]}>
+    <View style={[styles.container, { backgroundColor: theme.card, borderColor: severityColor }]}>
       <View style={styles.headerRow}>
         <View style={[styles.badge, { backgroundColor: severityColor + '22' }]}>
           <Text style={[styles.badgeText, { color: severityColor }]}>
             {alert.severity.toUpperCase()}
           </Text>
         </View>
-        <Text style={[styles.date, { color: theme.colors.muted }]}>{alert.date}</Text>
+        <Text style={[styles.date, { color: theme.muted }]}>{alert.date}</Text>
       </View>
-      <Text style={[styles.title, { color: theme.colors.text }]}>{alert.title}</Text>
-      <Text style={[styles.desc, { color: theme.colors.muted }]}>{alert.description}</Text>
+      <Text style={[styles.title, { color: theme.text }]}>{alert.title}</Text>
+      <Text style={[styles.desc, { color: theme.muted }]}>{alert.description}</Text>
     </View>
   );
 };

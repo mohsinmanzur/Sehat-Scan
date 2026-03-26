@@ -1,35 +1,35 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Report } from '@types/models';
-import { useAppTheme } from '@theme/ThemeContext';
+import { Report } from '../types/models';
+import { useTheme } from '@context/ThemeContext';
 
 interface Props {
   report: Report;
 }
 
 const ReportCard: React.FC<Props> = ({ report }) => {
-  const { theme } = useAppTheme();
 
+  const { theme } = useTheme();
   const isScanned = report.source === 'scanned';
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-      <Text style={[styles.type, { color: theme.colors.muted }]}>{report.type}</Text>
-      <Text style={[styles.title, { color: theme.colors.text }]}>{report.title}</Text>
+    <View style={[styles.container, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <Text style={[styles.type, { color: theme.muted }]}>{report.type}</Text>
+      <Text style={[styles.title, { color: theme.text }]}>{report.title}</Text>
       <View style={styles.row}>
-        <Text style={[styles.date, { color: theme.colors.muted }]}>{report.date}</Text>
+        <Text style={[styles.date, { color: theme.muted }]}>{report.date}</Text>
         <View
           style={[
             styles.badge,
             {
-              backgroundColor: isScanned ? theme.colors.primarySoft : theme.colors.border
+              backgroundColor: isScanned ? theme.primarySoft : theme.border
             }
           ]}
         >
           <Text
             style={[
               styles.badgeText,
-              { color: isScanned ? theme.colors.primary : theme.colors.muted }
+              { color: isScanned ? theme.primary : theme.muted }
             ]}
           >
             {isScanned ? 'Scanned via app' : 'Entered manually'}
@@ -40,7 +40,7 @@ const ReportCard: React.FC<Props> = ({ report }) => {
         style={[
           styles.status,
           {
-            color: report.status === 'processed' ? theme.colors.primary : theme.colors.muted
+            color: report.status === 'processed' ? theme.primary : theme.muted
           }
         ]}
       >

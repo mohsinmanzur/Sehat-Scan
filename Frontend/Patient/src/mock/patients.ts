@@ -1,5 +1,5 @@
 // src/mock/patients.ts
-import { PatientProfile, ConditionType, RiskLevel, Trend } from '@types/patient';
+import { PatientProfile, ConditionType, RiskLevel, Trend } from '../types/patients';
 
 const firstNames = ['Ali', 'Sara', 'Ahmed', 'Fatima', 'Usman', 'Zara', 'Bilal', 'Ayesha', 'Hamza', 'Noor'];
 const lastNames = ['Khan', 'Ahmed', 'Hussain', 'Malik', 'Raza', 'Shaikh', 'Qureshi', 'Siddiqui', 'Janjua', 'Ansari'];

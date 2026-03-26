@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 
 const modes: { label: string; value: 'light' | 'dark' | 'system' }[] = [
   { label: 'Light', value: 'light' },
@@ -9,11 +9,11 @@ const modes: { label: string; value: 'light' | 'dark' | 'system' }[] = [
 ];
 
 const ThemeToggle: React.FC = () => {
-  const { theme, mode, setMode } = useAppTheme();
+  const { theme, mode, setMode } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: theme.colors.text }]}>Theme</Text>
+      <Text style={[styles.label, { color: theme.text }]}>Theme</Text>
       <View style={styles.row}>
         {modes.map(m => (
           <TouchableOpacity
@@ -23,14 +23,14 @@ const ThemeToggle: React.FC = () => {
               styles.button,
               {
                 backgroundColor:
-                  mode === m.value ? theme.colors.primarySoft : theme.colors.background,
-                borderColor: mode === m.value ? theme.colors.primary : theme.colors.border
+                  mode === m.value ? theme.primarySoft : theme.background,
+                borderColor: mode === m.value ? theme.primary : theme.border
               }
             ]}
           >
             <Text
               style={{
-                color: mode === m.value ? theme.colors.primary : theme.colors.muted,
+                color: mode === m.value ? theme.primary : theme.muted,
                 fontSize: 13
               }}
             >

@@ -4,8 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DashboardScreen from '@screens/Dashboard/DashboardScreen';
 import ScanScreen from '@screens/Scan/ScanScreen';
 import ShareAccessScreen from '@screens/ShareAccess/ShareAccessScreen';
-import { useAppTheme } from '@theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@context/ThemeContext';
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -16,17 +16,19 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const BottomTabs: React.FC = () => {
-  const { theme } = useAppTheme();
+
+  const { theme } = useTheme();
 
   return (
     <Tab.Navigator
+      id = 'BottomTabs'
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.muted,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.muted,
         tabBarStyle: {
-          backgroundColor: theme.colors.card,
-          borderTopColor: theme.colors.border,
+          backgroundColor: theme.card,
+          borderTopColor: theme.border,
           height: 70,
           paddingBottom: 10,
           paddingTop: 4,

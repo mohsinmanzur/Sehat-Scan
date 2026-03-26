@@ -8,14 +8,13 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "noEmit": true,
     "isolatedModules": true,
     "types": [
       "react",
       "react-native",
-      "react-native-dotenv"
     ],
     "baseUrl": ".",
     "paths": {
@@ -26,7 +25,7 @@
         "src/navigation/*"
       ],
       "@theme/*": [
-        "src/theme/*"
+        "src/constants/*"
       ],
       "@context/*": [
         "src/context/*"

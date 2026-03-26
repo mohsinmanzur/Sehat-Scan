@@ -8,6 +8,7 @@ import LoginScreen from '@screens/Auth/LoginScreen';
 import OtpScreen from '@screens/Auth/OtpScreen';
 import SettingsScreen from '@screens/Settings/SettingsScreen';
 import ReportsScreen from '@screens/Reports/ReportsScreen';
+import SplashScreen from '@screens/Splash/SplashScreen';
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Settings: undefined;
   Reports: undefined;
+  Splash: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,6 +25,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator: React.FC = () => (
   <NavigationContainer>
     <Stack.Navigator
+      id = "RootStack"
       initialRouteName="Landing"
       screenOptions={{ headerShown: false }}
     >
@@ -32,6 +35,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="MainTabs" component={BottomTabs} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Reports" component={ReportsScreen} />
+      <Stack.Screen name="Splash" component={SplashScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

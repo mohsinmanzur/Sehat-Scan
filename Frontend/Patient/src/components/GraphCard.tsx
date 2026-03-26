@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { InsightSeries } from '@types/models';
-import { useAppTheme } from '@theme/ThemeContext';
+import { InsightSeries } from '../types/models';
+import { useTheme } from '@context/ThemeContext';
 
 interface Props {
   insight: InsightSeries;
@@ -11,14 +11,15 @@ interface Props {
 const screenWidth = Dimensions.get('window').width;
 
 const GraphCard: React.FC<Props> = ({ insight }) => {
-  const { theme } = useAppTheme();
+
+  const { theme } = useTheme();
 
   const labels = insight.points.map(p => p.date.split('-').slice(1).join('/'));
   const data = insight.points.map(p => p.value);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-      <Text style={[styles.title, { color: theme.colors.text }]}>{insight.title}</Text>
+    <View style={[styles.container, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <Text style={[styles.title, { color: theme.text }]}>{insight.title}</Text>
       <LineChart
         data={{
           labels,
@@ -33,12 +34,12 @@ const GraphCard: React.FC<Props> = ({ insight }) => {
         yAxisLabel=""
         yAxisSuffix={` ${insight.unit}`}
         chartConfig={{
-          backgroundColor: theme.colors.card,
-          backgroundGradientFrom: theme.colors.card,
-          backgroundGradientTo: theme.colors.card,
+          backgroundColor: theme.card,
+          backgroundGradientFrom: theme.card,
+          backgroundGradientTo: theme.card,
           decimalPlaces: 1,
-          color: (opacity = 1) => theme.colors.primary,
-          labelColor: (opacity = 1) => theme.colors.muted,
+          color: (opacity = 1) => theme.primary,
+          labelColor: (opacity = 1) => theme.muted,
           propsForDots: {
             r: '3'
           }
@@ -49,7 +50,7 @@ const GraphCard: React.FC<Props> = ({ insight }) => {
           borderRadius: 12
         }}
       />
-      <Text style={[styles.description, { color: theme.colors.muted }]}>{insight.description}</Text>
+      <Text style={[styles.description, { color: theme.muted }]}>{insight.description}</Text>
     </View>
   );
 };

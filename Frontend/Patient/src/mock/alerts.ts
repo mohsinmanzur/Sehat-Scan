@@ -1,4 +1,4 @@
-import { Alert } from '@types/models';
+import { Alert } from '../types/models';
 
 export const alerts: Alert[] = [
   {

@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@context/ThemeContext';
 
 type DurationPreset = '10m' | '1h' | '1d' | '1w' | 'custom';
 
@@ -39,7 +39,6 @@ const initialAccess: AccessRecord[] = [
 ];
 
 const ShareAccessScreen: React.FC = () => {
-  const { theme } = useAppTheme();
 
   const [doctorName, setDoctorName] = useState('');
   const [hospital, setHospital] = useState('');
@@ -49,6 +48,8 @@ const ShareAccessScreen: React.FC = () => {
   const [customUnit, setCustomUnit] = useState<'min' | 'h' | 'd' | 'w'>('min');
   const [accessModalVisible, setAccessModalVisible] = useState(false);
   const [accessList, setAccessList] = useState<AccessRecord[]>(initialAccess);
+
+  const { theme } = useTheme();
 
   const toggleAccessModal = () =>
     setAccessModalVisible((prev) => !prev);
@@ -96,38 +97,38 @@ const ShareAccessScreen: React.FC = () => {
 
   return (
     <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
     >
       <View style={styles.safeTop} />
 
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>
+        <Text style={[styles.title, { color: theme.text }]}>
           Share access
         </Text>
-        <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
+        <Text style={[styles.subtitle, { color: theme.muted }]}>
           Select a doctor and how long they can view your reports.
         </Text>
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.label, { color: theme.colors.muted }]}>
+        <Text style={[styles.label, { color: theme.muted }]}>
           Doctor name
         </Text>
         <TextInput
           style={[
             styles.input,
-            { borderColor: theme.colors.border, color: theme.colors.text },
+            { borderColor: theme.border, color: theme.text },
           ]}
           value={doctorName}
           onChangeText={setDoctorName}
           placeholder="e.g. Dr. Ahsan Malik"
-          placeholderTextColor={theme.colors.muted}
+          placeholderTextColor={theme.muted}
         />
 
         <Text
           style={[
             styles.label,
-            { color: theme.colors.muted, marginTop: 12 },
+            { color: theme.muted, marginTop: 12 },
           ]}
         >
           Hospital / clinic
@@ -135,18 +136,18 @@ const ShareAccessScreen: React.FC = () => {
         <TextInput
           style={[
             styles.input,
-            { borderColor: theme.colors.border, color: theme.colors.text },
+            { borderColor: theme.border, color: theme.text },
           ]}
           value={hospital}
           onChangeText={setHospital}
           placeholder="e.g. Aga Khan Hospital"
-          placeholderTextColor={theme.colors.muted}
+          placeholderTextColor={theme.muted}
         />
 
         <Text
           style={[
             styles.label,
-            { color: theme.colors.muted, marginTop: 12 },
+            { color: theme.muted, marginTop: 12 },
           ]}
         >
           Expertise
@@ -154,18 +155,18 @@ const ShareAccessScreen: React.FC = () => {
         <TextInput
           style={[
             styles.input,
-            { borderColor: theme.colors.border, color: theme.colors.text },
+            { borderColor: theme.border, color: theme.text },
           ]}
           value={expertise}
           onChangeText={setExpertise}
           placeholder="e.g. Cardiologist, Diabetologist"
-          placeholderTextColor={theme.colors.muted}
+          placeholderTextColor={theme.muted}
         />
 
         <Text
           style={[
             styles.label,
-            { color: theme.colors.muted, marginTop: 14 },
+            { color: theme.muted, marginTop: 14 },
           ]}
         >
           Access duration
@@ -178,14 +179,14 @@ const ShareAccessScreen: React.FC = () => {
               style={[
                 styles.chip,
                 preset === v && {
-                  backgroundColor: theme.colors.primary,
+                  backgroundColor: theme.primary,
                 },
               ]}
               onPress={() => setPreset(v)}
             >
               <Text
                 style={{
-                  color: preset === v ? '#fff' : theme.colors.text,
+                  color: preset === v ? '#fff' : theme.text,
                   fontSize: 13,
                   fontWeight: '600',
                 }}
@@ -204,14 +205,14 @@ const ShareAccessScreen: React.FC = () => {
             style={[
               styles.chip,
               preset === 'custom' && {
-                backgroundColor: theme.colors.primary,
+                backgroundColor: theme.primary,
               },
             ]}
             onPress={() => setPreset('custom')}
           >
             <Text
               style={{
-                color: preset === 'custom' ? '#fff' : theme.colors.text,
+                color: preset === 'custom' ? '#fff' : theme.text,
                 fontSize: 13,
                 fontWeight: '600',
               }}
@@ -227,15 +228,15 @@ const ShareAccessScreen: React.FC = () => {
               style={[
                 styles.customInput,
                 {
-                  borderColor: theme.colors.border,
-                  color: theme.colors.text,
+                  borderColor: theme.border,
+                  color: theme.text,
                 },
               ]}
               value={customValue}
               onChangeText={setCustomValue}
               keyboardType="numeric"
               placeholder="Value"
-              placeholderTextColor={theme.colors.muted}
+              placeholderTextColor={theme.muted}
             />
             <View style={styles.customUnits}>
               {(['min', 'h', 'd', 'w'] as Array<
@@ -246,7 +247,7 @@ const ShareAccessScreen: React.FC = () => {
                   style={[
                     styles.chip,
                     customUnit === u && {
-                      backgroundColor: theme.colors.primary,
+                      backgroundColor: theme.primary,
                     },
                   ]}
                   onPress={() => setCustomUnit(u)}
@@ -254,7 +255,7 @@ const ShareAccessScreen: React.FC = () => {
                   <Text
                     style={{
                       color:
-                        customUnit === u ? '#fff' : theme.colors.text,
+                        customUnit === u ? '#fff' : theme.text,
                       fontSize: 12,
                       fontWeight: '600',
                     }}
@@ -270,7 +271,7 @@ const ShareAccessScreen: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.shareButton,
-            { backgroundColor: theme.colors.primary },
+            { backgroundColor: theme.primary },
           ]}
           onPress={addAccessRecord}
         >
@@ -288,7 +289,7 @@ const ShareAccessScreen: React.FC = () => {
         >
           <Text
             style={{
-              color: theme.colors.primary,
+              color: theme.primary,
               fontSize: 14,
               fontWeight: '600',
             }}
@@ -312,8 +313,8 @@ const ShareAccessScreen: React.FC = () => {
             style={[
               styles.modalSheet,
               {
-                backgroundColor: theme.colors.card,
-                borderColor: theme.colors.border,
+                backgroundColor: theme.card,
+                borderColor: theme.border,
               },
             ]}
           >
@@ -321,7 +322,7 @@ const ShareAccessScreen: React.FC = () => {
             <Text
               style={[
                 styles.modalTitle,
-                { color: theme.colors.text },
+                { color: theme.text },
               ]}
             >
               Access review
@@ -329,7 +330,7 @@ const ShareAccessScreen: React.FC = () => {
             <Text
               style={[
                 styles.modalSubtitle,
-                { color: theme.colors.muted },
+                { color: theme.muted },
               ]}
             >
               Who can see your reports, for how long.
@@ -343,26 +344,26 @@ const ShareAccessScreen: React.FC = () => {
                   {
                     borderColor:
                       a.status === 'active'
-                        ? theme.colors.primary
-                        : theme.colors.border,
+                        ? theme.primary
+                        : theme.border,
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.accessTitle,
-                    { color: theme.colors.text },
+                    { color: theme.text },
                   ]}
                 >
                   {a.doctor}
                 </Text>
                 <Text
-                  style={{ color: theme.colors.muted, fontSize: 13 }}
+                  style={{ color: theme.muted, fontSize: 13 }}
                 >
                   {a.hospital}
                 </Text>
                 <Text
-                  style={{ color: theme.colors.muted, fontSize: 13 }}
+                  style={{ color: theme.muted, fontSize: 13 }}
                 >
                   Duration: {a.duration}
                 </Text>
@@ -371,8 +372,8 @@ const ShareAccessScreen: React.FC = () => {
                     style={{
                       color:
                         a.status === 'active'
-                          ? theme.colors.success
-                          : theme.colors.muted,
+                          ? theme.success
+                          : theme.muted,
                       fontSize: 13,
                     }}
                   >
@@ -382,7 +383,7 @@ const ShareAccessScreen: React.FC = () => {
                     <TouchableOpacity
                       style={[
                         styles.revokeButton,
-                        { backgroundColor: theme.colors.danger },
+                        { backgroundColor: theme.danger },
                       ]}
                       onPress={() => revokeAccess(a.id)}
                     >
@@ -406,7 +407,7 @@ const ShareAccessScreen: React.FC = () => {
               onPress={toggleAccessModal}
             >
               <Text
-                style={{ color: theme.colors.primary, fontSize: 15 }}
+                style={{ color: theme.primary, fontSize: 15 }}
               >
                 Close
               </Text>

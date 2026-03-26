@@ -12,9 +12,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
-import { useAppTheme } from '@theme/ThemeContext';
 import { useCurrentPatient } from '@context/UserContext';
 import { Report } from '@mock/reports';
+import { useTheme } from '@context/ThemeContext';
 
 interface Props {
     visible: boolean;
@@ -23,9 +23,9 @@ interface Props {
 }
 
 const ScanSheet: FC<Props> = ({ visible, onClose, onShowReports }) => {
-    const { theme } = useAppTheme();
     const { currentPatient } = useCurrentPatient();
     const navigation = useNavigation<any>();
+    const { theme } = useTheme();
 
     if (!visible) return null;
 
@@ -35,7 +35,7 @@ const ScanSheet: FC<Props> = ({ visible, onClose, onShowReports }) => {
 
         let ocrText: string | undefined;
         if (uri) {
-            ocrText = await runOcrOnImage(uri);
+            // ocrText = await runOcrOnImage(uri);
         }
 
         const newReport: Report = {
@@ -44,11 +44,11 @@ const ScanSheet: FC<Props> = ({ visible, onClose, onShowReports }) => {
             title: 'Scanned report',
             date: dateStr,
             type: 'other',
-            risk: 'pending',
+            risk: 'normal',
             source,
             values: [60, 65, 70, 75, 80, 82, 85, 90],
             imageUri: uri,
-            ocrText,
+            //ocrText,
         };
 
         // Navigate to Reports screen and pass this new report
@@ -120,80 +120,80 @@ const ScanSheet: FC<Props> = ({ visible, onClose, onShowReports }) => {
                 style={[
                     styles.sheet,
                     {
-                        backgroundColor: theme.colors.card,
-                        borderColor: theme.colors.border,
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
                     },
                 ]}
             >
                 <View style={styles.handle} />
 
-                <Text style={[styles.title, { color: theme.colors.text }]}>
+                <Text style={[styles.title, { color: theme.text }]}>
                     Scan & manage reports
                 </Text>
-                <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
+                <Text style={[styles.subtitle, { color: theme.muted }]}>
                     Use your camera or gallery, or add values manually.
                 </Text>
 
                 <View style={styles.options}>
                     <TouchableOpacity
-                        style={[styles.optionButton, { backgroundColor: theme.colors.primary + '22' }]}
+                        style={[styles.optionButton, { backgroundColor: theme.primary + '22' }]}
                         onPress={handleScanCamera}
                     >
                         <Ionicons
                             name={Platform.OS === 'ios' ? 'camera' : 'camera-outline'}
                             size={22}
-                            color={theme.colors.primary}
+                            color={theme.primary}
                         />
-                        <Text style={[styles.optionText, { color: theme.colors.text }]}>
+                        <Text style={[styles.optionText, { color: theme.text }]}>
                             Scan with camera
                         </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.optionButton, { backgroundColor: theme.colors.card }]}
+                        style={[styles.optionButton, { backgroundColor: theme.card }]}
                         onPress={handleUploadGallery}
                     >
                         <Ionicons
                             name="image-outline"
                             size={22}
-                            color={theme.colors.text}
+                            color={theme.text}
                         />
-                        <Text style={[styles.optionText, { color: theme.colors.text }]}>
+                        <Text style={[styles.optionText, { color: theme.text }]}>
                             Upload from gallery
                         </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.optionButton, { backgroundColor: theme.colors.card }]}
+                        style={[styles.optionButton, { backgroundColor: theme.card }]}
                         onPress={handleManual}
                     >
                         <MaterialIcons
                             name="edit-note"
                             size={22}
-                            color={theme.colors.text}
+                            color={theme.text}
                         />
-                        <Text style={[styles.optionText, { color: theme.colors.text }]}>
+                        <Text style={[styles.optionText, { color: theme.text }]}>
                             Input manually
                         </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.optionButton, { backgroundColor: theme.colors.card }]}
+                        style={[styles.optionButton, { backgroundColor: theme.card }]}
                         onPress={handleReviewReports}
                     >
                         <Ionicons
                             name="list-outline"
                             size={22}
-                            color={theme.colors.text}
+                            color={theme.text}
                         />
-                        <Text style={[styles.optionText, { color: theme.colors.text }]}>
+                        <Text style={[styles.optionText, { color: theme.text }]}>
                             Review reports
                         </Text>
                     </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                    <Text style={{ color: theme.colors.muted, fontSize: 13 }}>Close</Text>
+                    <Text style={{ color: theme.muted, fontSize: 13 }}>Close</Text>
                 </TouchableOpacity>
             </View>
         </View>

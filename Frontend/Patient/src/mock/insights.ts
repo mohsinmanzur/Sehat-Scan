@@ -1,4 +1,4 @@
-import { InsightSeries } from '@types/models';
+import { InsightSeries } from '../types/models';
 
 export const insights: InsightSeries[] = [
   {

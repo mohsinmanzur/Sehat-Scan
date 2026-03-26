@@ -9,22 +9,27 @@ import {
     Pressable,
     Alert,
 } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import { BottomTabParamList } from '@navigation/BottomTabs';
+import { CompositeScreenProps } from '@react-navigation/native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useTheme } from '@context/ThemeContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Tabs'>;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabParamList, 'Scan'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 const ScanScreen: React.FC<Props> = ({ navigation }) => {
-    const { theme } = useAppTheme();
-    const colors = theme.colors;
-
     const [sheetVisible, setSheetVisible] = useState(false);
 
     const openSheet = () => setSheetVisible(true);
     const closeSheet = () => setSheetVisible(false);
+
+    const { theme } = useTheme();
 
     const askForCameraPermission = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -113,16 +118,16 @@ const ScanScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.safeTop} />
 
-            <Text style={[styles.title, { color: colors.text }]}>Scan reports</Text>
-            <Text style={[styles.subtitle, { color: colors.muted }]}>
+            <Text style={[styles.title, { color: theme.text }]}>Scan reports</Text>
+            <Text style={[styles.subtitle, { color: theme.muted }]}>
                 Scan new reports, upload existing ones or enter values manually.
             </Text>
 
             <TouchableOpacity
-                style={[styles.bigButton, { backgroundColor: colors.primary }]}
+                style={[styles.bigButton, { backgroundColor: theme.primary }]}
                 onPress={openSheet}
                 activeOpacity={0.85}
             >
@@ -131,8 +136,8 @@ const ScanScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
 
             <View style={styles.infoRow}>
-                <Ionicons name="information-circle-outline" size={18} color={colors.muted} />
-                <Text style={[styles.infoText, { color: colors.muted }]}>
+                <Ionicons name="information-circle-outline" size={18} color={theme.muted} />
+                <Text style={[styles.infoText, { color: theme.muted }]}>
                     All reports are listed with AI insights under "Review reports".
                 </Text>
             </View>
@@ -148,10 +153,10 @@ const ScanScreen: React.FC<Props> = ({ navigation }) => {
             >
                 <Pressable style={styles.backdrop} onPress={closeSheet} />
 
-                <View style={[styles.sheet, { backgroundColor: colors.card }]}>
+                <View style={[styles.sheet, { backgroundColor: theme.card }]}>
                     <View style={styles.sheetHandle} />
 
-                    <Text style={[styles.sheetTitle, { color: colors.text }]}>
+                    <Text style={[styles.sheetTitle, { color: theme.text }]}>
                         What would you like to do?
                     </Text>
 
@@ -160,32 +165,32 @@ const ScanScreen: React.FC<Props> = ({ navigation }) => {
                         label="Scan report"
                         description="Open camera and scan a physical report."
                         onPress={handleScanReport}
-                        colors={colors}
+                        colors={theme}
                     />
                     <SheetItem
                         icon="image-outline"
                         label="Upload report"
                         description="Pick a report photo from your gallery."
                         onPress={handleUploadReport}
-                        colors={colors}
+                        colors={theme}
                     />
                     <SheetItem
                         icon="create-outline"
                         label="Input manually"
                         description="Enter values when a scan is not possible."
                         onPress={handleInputManually}
-                        colors={colors}
+                        colors={theme}
                     />
                     <SheetItem
                         icon="document-text-outline"
                         label="Review reports"
                         description="See history, AI insights and graphs."
                         onPress={handleReviewReports}
-                        colors={colors}
+                        colors={theme}
                     />
 
                     <TouchableOpacity onPress={closeSheet} style={styles.closeButton}>
-                        <Text style={{ color: colors.muted, fontSize: 15 }}>Close</Text>
+                        <Text style={{ color: theme.muted, fontSize: 15 }}>Close</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>

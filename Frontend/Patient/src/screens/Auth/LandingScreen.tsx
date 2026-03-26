@@ -3,33 +3,34 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
-import { useAppTheme } from '@theme/ThemeContext';
+import { useTheme } from '@context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Landing'>;
 
 const LandingScreen: React.FC<Props> = ({ navigation }) => {
-    const { theme } = useAppTheme();
+
+    const { theme } = useTheme();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.safeTop} />
 
             <View style={styles.center}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>SehatScan</Text>
-                <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
+                <Text style={[styles.title, { color: theme.text }]}>SehatScan</Text>
+                <Text style={[styles.subtitle, { color: theme.muted }]}>
                     Swipe up to see your health, securely.
                 </Text>
             </View>
 
             <View style={styles.bottomArea}>
-                <Text style={{ color: theme.colors.muted, fontSize: 13, marginBottom: 8 }}>
+                <Text style={{ color: theme.muted, fontSize: 13, marginBottom: 8 }}>
                     Swipe up or tap to log in
                 </Text>
                 <TouchableOpacity
-                    style={[styles.swipeHandle, { borderColor: theme.colors.border }]}
+                    style={[styles.swipeHandle, { borderColor: theme.border }]}
                     onPress={() => navigation.navigate('Login')}
                 >
-                    <Text style={{ color: theme.colors.text, fontSize: 14 }}>Swipe up</Text>
+                    <Text style={{ color: theme.text, fontSize: 14 }}>Swipe up</Text>
                 </TouchableOpacity>
             </View>
 

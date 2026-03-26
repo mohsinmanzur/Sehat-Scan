@@ -1,21 +1,21 @@
 // src/screens/Dashboard/DashboardScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
 import { useCurrentPatient } from '@context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '@context/ThemeContext';
 
 type RiskLevel = 'normal' | 'borderline' | 'high';
 
 const DashboardScreen: React.FC = () => {
-  const { theme } = useAppTheme();
   const { currentPatient } = useCurrentPatient();
   const navigation = useNavigation<any>();
 
   const bp = currentPatient?.bpSummary;
   const sugar = currentPatient?.sugarSummary;
   const heart = currentPatient?.heartSummary;
+  const { theme } = useTheme();
 
   const anyDanger =
     (bp && bp.riskLevel === 'high') ||
@@ -25,17 +25,17 @@ const DashboardScreen: React.FC = () => {
   const getStatusColors = (risk: RiskLevel) => {
     if (risk === 'normal')
       return {
-        border: theme.colors.success + '80',
-        bg: theme.colors.success + '18',
+        border: theme.success + '80',
+        bg: theme.success + '18',
       };
     if (risk === 'borderline')
       return {
-        border: theme.colors.warning + '99',
-        bg: theme.colors.warning + '20',
+        border: theme.warning + '99',
+        bg: theme.warning + '20',
       };
     return {
-      border: theme.colors.danger + 'aa',
-      bg: theme.colors.danger + '20',
+      border: theme.danger + 'aa',
+      bg: theme.danger + '20',
     };
   };
 
@@ -45,7 +45,7 @@ const DashboardScreen: React.FC = () => {
         <Ionicons
           name="checkmark-circle"
           size={24}
-          color={theme.colors.success}
+          color={theme.success}
         />
       );
     }
@@ -54,7 +54,7 @@ const DashboardScreen: React.FC = () => {
         <MaterialIcons
           name="error-outline"
           size={24}
-          color={theme.colors.warning}
+          color={theme.warning}
         />
       );
     }
@@ -62,14 +62,14 @@ const DashboardScreen: React.FC = () => {
       <MaterialIcons
         name="warning"
         size={24}
-        color={theme.colors.danger}
+        color={theme.danger}
       />
     );
   };
 
   return (
     <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
     >
       {/* safe top */}
       <View style={styles.safeTop} />
@@ -77,10 +77,10 @@ const DashboardScreen: React.FC = () => {
       {/* top bar */}
       <View style={styles.topBar}>
         <View>
-          <Text style={[styles.appName, { color: theme.colors.text }]}>
+          <Text style={[styles.appName, { color: theme.text }]}>
             SehatScan
           </Text>
-          <Text style={{ color: theme.colors.muted, fontSize: 12 }}>
+          <Text style={{ color: theme.muted, fontSize: 12 }}>
             {currentPatient
               ? `${currentPatient.name} • ${currentPatient.condition?.toUpperCase?.() ?? ''
               }`
@@ -91,7 +91,7 @@ const DashboardScreen: React.FC = () => {
           <Ionicons
             name="settings-outline"
             size={24}
-            color={theme.colors.text}
+            color={theme.text}
             onPress={() => navigation.navigate('Settings')}
           />
         </View>
@@ -102,18 +102,18 @@ const DashboardScreen: React.FC = () => {
         <View
           style={[
             styles.warningBanner,
-            { backgroundColor: theme.colors.danger + '25' },
+            { backgroundColor: theme.danger + '25' },
           ]}
         >
           <MaterialIcons
             name="warning"
             size={22}
-            color={theme.colors.danger}
+            color={theme.danger}
             style={{ marginRight: 8 }}
           />
           <Text
             style={{
-              color: theme.colors.danger,
+              color: theme.danger,
               fontSize: 13, // smaller than before
               fontWeight: '600',
             }}
@@ -144,11 +144,11 @@ const DashboardScreen: React.FC = () => {
                 <MaterialIcons
                   name="favorite-border"
                   size={26}
-                  color={theme.colors.text}
+                  color={theme.text}
                 />
               </View>
               <Text
-                style={[styles.cardTitle, { color: theme.colors.text }]}
+                style={[styles.cardTitle, { color: theme.text }]}
                 numberOfLines={1}
               >
                 Blood pressure
@@ -156,14 +156,14 @@ const DashboardScreen: React.FC = () => {
               {renderStatusIcon(bp.riskLevel)}
             </View>
             <Text
-              style={[styles.mainValue, { color: theme.colors.text }]}
+              style={[styles.mainValue, { color: theme.text }]}
               numberOfLines={1}
             >
               {bp.lastValue} {bp.unit}
             </Text>
             <Text
               style={{
-                color: theme.colors.muted,
+                color: theme.muted,
                 fontSize: 13,
                 marginTop: 2,
               }}
@@ -189,11 +189,11 @@ const DashboardScreen: React.FC = () => {
                 <MaterialIcons
                   name="opacity"
                   size={26}
-                  color={theme.colors.text}
+                  color={theme.text}
                 />
               </View>
               <Text
-                style={[styles.cardTitle, { color: theme.colors.text }]}
+                style={[styles.cardTitle, { color: theme.text }]}
                 numberOfLines={1}
               >
                 Blood sugar
@@ -201,14 +201,14 @@ const DashboardScreen: React.FC = () => {
               {renderStatusIcon(sugar.riskLevel)}
             </View>
             <Text
-              style={[styles.mainValue, { color: theme.colors.text }]}
+              style={[styles.mainValue, { color: theme.text }]}
               numberOfLines={1}
             >
               {sugar.lastValue} {sugar.unit}
             </Text>
             <Text
               style={{
-                color: theme.colors.muted,
+                color: theme.muted,
                 fontSize: 13,
                 marginTop: 2,
               }}
@@ -234,11 +234,11 @@ const DashboardScreen: React.FC = () => {
                 <Ionicons
                   name="heart-outline"
                   size={26}
-                  color={theme.colors.text}
+                  color={theme.text}
                 />
               </View>
               <Text
-                style={[styles.cardTitle, { color: theme.colors.text }]}
+                style={[styles.cardTitle, { color: theme.text }]}
                 numberOfLines={1}
               >
                 Heart rate
@@ -246,14 +246,14 @@ const DashboardScreen: React.FC = () => {
               {renderStatusIcon(heart.riskLevel)}
             </View>
             <Text
-              style={[styles.mainValue, { color: theme.colors.text }]}
+              style={[styles.mainValue, { color: theme.text }]}
               numberOfLines={1}
             >
               {heart.lastValue} {heart.unit}
             </Text>
             <Text
               style={{
-                color: theme.colors.muted,
+                color: theme.muted,
                 fontSize: 13,
                 marginTop: 2,
               }}
@@ -265,7 +265,7 @@ const DashboardScreen: React.FC = () => {
 
         {!bp && !sugar && !heart && (
           <Text
-            style={{ color: theme.colors.muted, fontSize: 14, marginTop: 12 }}
+            style={{ color: theme.muted, fontSize: 14, marginTop: 12 }}
           >
             No summary values available yet. Scan or add a report from the Scan
             tab.

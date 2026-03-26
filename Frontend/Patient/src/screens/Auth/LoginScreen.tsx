@@ -10,13 +10,14 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
-import { useAppTheme } from '@theme/ThemeContext';
 import { patients } from '@mock/patients';
+import { useTheme } from '@context/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
-    const { theme } = useAppTheme();
+    const { theme } = useTheme();
+
     const [email, setEmail] = useState('');
     const [filtered, setFiltered] = useState(patients.slice(0, 10));
 
@@ -39,12 +40,12 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.safeTop} />
 
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>Login</Text>
-                <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
+                <Text style={[styles.title, { color: theme.text }]}>Login</Text>
+                <Text style={[styles.subtitle, { color: theme.muted }]}>
                     Choose any dummy patient email to load 1–2 years of reports.
                 </Text>
             </View>
@@ -53,17 +54,17 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                 <TextInput
                     style={[
                         styles.input,
-                        { borderColor: theme.colors.border, color: theme.colors.text },
+                        { borderColor: theme.border, color: theme.text },
                     ]}
                     placeholder="patient.email@example.com"
-                    placeholderTextColor={theme.colors.muted}
+                    placeholderTextColor={theme.muted}
                     value={email}
                     onChangeText={onChange}
                     autoCapitalize="none"
                     keyboardType="email-address"
                 />
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: theme.colors.primary }]}
+                    style={[styles.button, { backgroundColor: theme.primary }]}
                     onPress={handleContinue}
                 >
                     <Text style={styles.buttonLabel}>Continue</Text>
@@ -71,7 +72,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             </View>
 
             <View style={styles.listContainer}>
-                <Text style={[styles.listLabel, { color: theme.colors.muted }]}>
+                <Text style={[styles.listLabel, { color: theme.muted }]}>
                     Example dummy emails
                 </Text>
                 <FlatList
@@ -81,14 +82,14 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                         <TouchableOpacity
                             style={[
                                 styles.emailItem,
-                                { borderColor: theme.colors.border },
+                                { borderColor: theme.border },
                             ]}
                             onPress={() => goToOtp(item.id)}
                         >
-                            <Text style={{ color: theme.colors.text, fontSize: 14 }}>
+                            <Text style={{ color: theme.text, fontSize: 14 }}>
                                 {item.email}
                             </Text>
-                            <Text style={{ color: theme.colors.muted, fontSize: 12 }}>
+                            <Text style={{ color: theme.muted, fontSize: 12 }}>
                                 {item.condition.toUpperCase()} • {item.yearsOfData} yr data
                             </Text>
                         </TouchableOpacity>

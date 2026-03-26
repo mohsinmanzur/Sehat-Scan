@@ -10,24 +10,24 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { reports as allReports } from '@mock/reports';
 import { useCurrentPatient } from '@context/UserContext';
+import { useTheme } from '@context/ThemeContext';
 
 type Report = any; // keeps it flexible with your existing mock structure
 
 type FilterType = 'all' | 'scanned' | 'manual';
 
 const ReportsScreen: React.FC = () => {
-  const { theme } = useAppTheme();
-  const colors = theme.colors;
-  const { patient } = useCurrentPatient();
+  const { currentPatient: patient } = useCurrentPatient();
 
   const [filter, setFilter] = useState<FilterType>('all');
   const [query, setQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [showInsights, setShowInsights] = useState(false);
+
+  const { theme } = useTheme();
 
   // filter reports for logged-in patient (if any)
   const patientReports: Report[] = useMemo(() => {
@@ -73,7 +73,7 @@ const ReportsScreen: React.FC = () => {
     const status = item.status ?? 'ok'; // 'pending' used for blue outline
 
     const { outlineColor, iconBg, iconColor, iconName } = getRiskStyling(
-      colors,
+      theme,
       risk,
       status
     );
@@ -86,10 +86,10 @@ const ReportsScreen: React.FC = () => {
               {renderTypeIcon(item.type, iconColor)}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
                 {item.title ?? 'Report'}
               </Text>
-              <Text style={[styles.cardMeta, { color: colors.muted }]}>
+              <Text style={[styles.cardMeta, { color: theme.muted }]}>
                 {item.date ?? ''} •{' '}
                 {item.source === 'scanned' ? 'Scanned report' : 'Manual'}
               </Text>
@@ -100,17 +100,17 @@ const ReportsScreen: React.FC = () => {
             {iconName === 'check-circle' ? (
               <MaterialIcons name={iconName} size={20} color={iconColor} />
             ) : (
-              <MaterialIcons name={iconName} size={20} color={iconColor} />
+              <MaterialIcons name="check-circle-outline" size={20} color={iconColor} />
             )}
           </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.aiButton, { borderColor: colors.primary }]}
+          style={[styles.aiButton, { borderColor: theme.primary }]}
           onPress={() => openInsights(item)}
         >
-          <Ionicons name="stats-chart-outline" size={16} color={colors.primary} />
-          <Text style={[styles.aiButtonText, { color: colors.primary }]}>
+          <Ionicons name="stats-chart-outline" size={16} color={theme.primary} />
+          <Text style={[styles.aiButtonText, { color: theme.primary }]}>
             AI insights & view image
           </Text>
         </TouchableOpacity>
@@ -119,11 +119,11 @@ const ReportsScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.safeTop} />
 
-      <Text style={[styles.headerTitle, { color: colors.text }]}>Reports</Text>
-      <Text style={[styles.headerSubtitle, { color: colors.muted }]}>
+      <Text style={[styles.headerTitle, { color: theme.text }]}>Reports</Text>
+      <Text style={[styles.headerSubtitle, { color: theme.muted }]}>
         Latest reports first. Blue = pending, green = OK, yellow = caution,
         red = high risk.
       </Text>
@@ -132,13 +132,13 @@ const ReportsScreen: React.FC = () => {
         value={query}
         onChangeText={setQuery}
         placeholder="Search by type or title (e.g. BP, sugar, lab)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={theme.muted}
         style={[
           styles.searchInput,
           {
-            borderColor: colors.border,
-            color: colors.text,
-            backgroundColor: colors.card,
+            borderColor: theme.border,
+            color: theme.text,
+            backgroundColor: theme.card,
           },
         ]}
       />
@@ -148,19 +148,19 @@ const ReportsScreen: React.FC = () => {
           label="All"
           active={filter === 'all'}
           onPress={() => setFilter('all')}
-          colors={colors}
+          colors={theme}
         />
         <FilterChip
           label="Scanned"
           active={filter === 'scanned'}
           onPress={() => setFilter('scanned')}
-          colors={colors}
+          colors={theme}
         />
         <FilterChip
           label="Manual"
           active={filter === 'manual'}
           onPress={() => setFilter('manual')}
-          colors={colors}
+          colors={theme}
         />
       </View>
 
@@ -185,7 +185,7 @@ const ReportsScreen: React.FC = () => {
           <View
             style={[
               styles.modalContent,
-              { backgroundColor: colors.card, borderColor: colors.border },
+              { backgroundColor: theme.card, borderColor: theme.border },
             ]}
           >
             <View style={styles.modalHandle} />
@@ -194,10 +194,10 @@ const ReportsScreen: React.FC = () => {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 16 }}
             >
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>
                 {selectedReport?.title ?? 'Report insights'}
               </Text>
-              <Text style={[styles.modalSubtitle, { color: colors.muted }]}>
+              <Text style={[styles.modalSubtitle, { color: theme.muted }]}>
                 {selectedReport?.date ?? ''}{' '}
                 {selectedReport?.type
                   ? `• ${String(selectedReport.type).toUpperCase()}`
@@ -208,26 +208,26 @@ const ReportsScreen: React.FC = () => {
               {selectedReport?.type === 'bp' ? (
                 <View style={styles.graphSection}>
                   <Text
-                    style={[styles.graphTitle, { color: colors.text }]}
+                    style={[styles.graphTitle, { color: theme.text }]}
                   >
                     Blood pressure trend (dummy)
                   </Text>
                   <Text
-                    style={[styles.graphSubtitle, { color: colors.muted }]}
+                    style={[styles.graphSubtitle, { color: theme.muted }]}
                   >
                     Systolic BP over the last 18 months.
                   </Text>
-                  <BpDummyGraph colors={colors} />
+                  <BpDummyGraph colors={theme} />
                 </View>
               ) : (
                 <View style={styles.graphSection}>
                   <Text
-                    style={[styles.graphTitle, { color: colors.text }]}
+                    style={[styles.graphTitle, { color: theme.text }]}
                   >
                     Graph not available
                   </Text>
                   <Text
-                    style={[styles.graphSubtitle, { color: colors.muted }]}
+                    style={[styles.graphSubtitle, { color: theme.muted }]}
                   >
                     At the moment the dummy graph is only shown for blood
                     pressure reports.
@@ -237,13 +237,13 @@ const ReportsScreen: React.FC = () => {
 
               <View style={{ marginTop: 16 }}>
                 <Text
-                  style={[styles.insightText, { color: colors.text }]}
+                  style={[styles.insightText, { color: theme.text }]}
                 >
                   • This is dummy AI text summarising whether the values are
                   stable, improving or worsening over time.
                 </Text>
                 <Text
-                  style={[styles.insightText, { color: colors.text }]}
+                  style={[styles.insightText, { color: theme.text }]}
                 >
                   • You can describe risk zones (green = safe, yellow =
                   caution, red = high risk) and recommend checking with a
@@ -253,7 +253,7 @@ const ReportsScreen: React.FC = () => {
 
               <View style={{ marginTop: 14 }}>
                 <Text
-                  style={[styles.imageNote, { color: colors.muted }]}
+                  style={[styles.imageNote, { color: theme.muted }]}
                 >
                   For now this is a dummy screen. When a real report image is
                   attached, it would be displayed here along with these
@@ -263,10 +263,10 @@ const ReportsScreen: React.FC = () => {
 
               <TouchableOpacity
                 onPress={closeInsights}
-                style={[styles.modalCloseButton, { borderColor: colors.border }]}
+                style={[styles.modalCloseButton, { borderColor: theme.border }]}
               >
                 <Text
-                  style={{ color: colors.text, fontSize: 15, fontWeight: '500' }}
+                  style={{ color: theme.text, fontSize: 15, fontWeight: '500' }}
                 >
                   Close
                 </Text>

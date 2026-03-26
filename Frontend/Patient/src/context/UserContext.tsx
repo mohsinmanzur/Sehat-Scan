@@ -1,6 +1,5 @@
-// src/context/UserContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { PatientProfile } from '@types/patient';
+import type { PatientProfile } from '../types/patients';
 
 interface UserContextValue {
     currentPatient: PatientProfile | null;

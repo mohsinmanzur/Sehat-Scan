@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
-import { useAppTheme } from '@theme/ThemeContext';
+import { useTheme } from '@context/ThemeContext';
 
 type Unit = 'minutes' | 'hours' | 'days' | 'weeks';
 
@@ -16,11 +16,12 @@ const presetOptions = [
 ];
 
 const DurationSelector: React.FC<Props> = ({ onChange }) => {
-  const { theme } = useAppTheme();
   const [selectedPreset, setSelectedPreset] = useState<string | null>('10m');
   const [customValue, setCustomValue] = useState<string>('');
   const [unit, setUnit] = useState<Unit>('minutes');
   const [error, setError] = useState<string | null>(null);
+
+  const { theme } = useTheme();
 
   const validate = (valueStr: string, unitVal: Unit, preset: string | null) => {
     let isValid = true;
@@ -83,7 +84,7 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
 
   return (
     <View>
-      <Text style={{ color: theme.colors.text, fontSize: 14, marginBottom: 8, fontWeight: '600' }}>
+      <Text style={{ color: theme.text, fontSize: 14, marginBottom: 8, fontWeight: '600' }}>
         Access Duration
       </Text>
       <View style={styles.presetRow}>
@@ -95,15 +96,15 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
               styles.presetButton,
               {
                 backgroundColor:
-                  selectedPreset === opt.value ? theme.colors.primarySoft : theme.colors.background,
+                  selectedPreset === opt.value ? theme.primarySoft : theme.background,
                 borderColor:
-                  selectedPreset === opt.value ? theme.colors.primary : theme.colors.border
+                  selectedPreset === opt.value ? theme.primary : theme.border
               }
             ]}
           >
             <Text
               style={{
-                color: selectedPreset === opt.value ? theme.colors.primary : theme.colors.muted,
+                color: selectedPreset === opt.value ? theme.primary : theme.muted,
                 fontSize: 12,
                 fontWeight: '500'
               }}
@@ -114,7 +115,7 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
         ))}
       </View>
 
-      <Text style={{ color: theme.colors.muted, fontSize: 12, marginTop: 8, marginBottom: 4 }}>
+      <Text style={{ color: theme.muted, fontSize: 12, marginTop: 8, marginBottom: 4 }}>
         Or set a custom duration
       </Text>
       <View style={styles.customRow}>
@@ -123,12 +124,12 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
           onChangeText={handleCustomChange}
           keyboardType="numeric"
           placeholder="Value"
-          placeholderTextColor={theme.colors.muted}
+          placeholderTextColor={theme.muted}
           style={[
             styles.valueInput,
             {
-              borderColor: theme.colors.border,
-              color: theme.colors.text
+              borderColor: theme.border,
+              color: theme.text
             }
           ]}
         />
@@ -141,14 +142,14 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
                 styles.unitButton,
                 {
                   backgroundColor:
-                    unit === u ? theme.colors.primarySoft : theme.colors.background,
-                  borderColor: unit === u ? theme.colors.primary : theme.colors.border
+                    unit === u ? theme.primarySoft : theme.background,
+                  borderColor: unit === u ? theme.primary : theme.border
                 }
               ]}
             >
               <Text
                 style={{
-                  color: unit === u ? theme.colors.primary : theme.colors.muted,
+                  color: unit === u ? theme.primary : theme.muted,
                   fontSize: 11
                 }}
               >
@@ -159,7 +160,7 @@ const DurationSelector: React.FC<Props> = ({ onChange }) => {
         </View>
       </View>
       {error && (
-        <Text style={{ color: theme.colors.danger, fontSize: 12, marginTop: 4 }}>{error}</Text>
+        <Text style={{ color: theme.danger, fontSize: 12, marginTop: 4 }}>{error}</Text>
       )}
     </View>
   );

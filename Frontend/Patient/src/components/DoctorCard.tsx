@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Doctor } from '@types/models';
-import { useAppTheme } from '@theme/ThemeContext';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Doctor } from '../types/models';
+import { useTheme } from '@context/ThemeContext';
 
 interface Props {
   doctor: Doctor;
@@ -10,7 +10,8 @@ interface Props {
 }
 
 const DoctorCard: React.FC<Props> = ({ doctor, selected, onPress }) => {
-  const { theme } = useAppTheme();
+
+  const { theme } = useTheme();
 
   return (
     <TouchableOpacity
@@ -18,16 +19,16 @@ const DoctorCard: React.FC<Props> = ({ doctor, selected, onPress }) => {
       style={[
         styles.container,
         {
-          backgroundColor: theme.colors.card,
-          borderColor: selected ? theme.colors.primary : theme.colors.border,
+          backgroundColor: theme.card,
+          borderColor: selected ? theme.primary : theme.border,
           borderWidth: selected ? 2 : 1
         }
       ]}
     >
-      <Text style={[styles.name, { color: theme.colors.text }]}>{doctor.name}</Text>
-      <Text style={[styles.specialty, { color: theme.colors.muted }]}>{doctor.specialty}</Text>
-      <Text style={[styles.hospital, { color: theme.colors.muted }]}>{doctor.hospital}</Text>
-      <Text style={[styles.location, { color: theme.colors.muted }]}>{doctor.location}</Text>
+      <Text style={[styles.name, { color: theme.text }]}>{doctor.name}</Text>
+      <Text style={[styles.specialty, { color: theme.muted }]}>{doctor.specialty}</Text>
+      <Text style={[styles.hospital, { color: theme.muted }]}>{doctor.hospital}</Text>
+      <Text style={[styles.location, { color: theme.muted }]}>{doctor.location}</Text>
     </TouchableOpacity>
   );
 };
