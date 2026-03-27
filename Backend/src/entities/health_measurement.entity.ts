@@ -1,14 +1,19 @@
 import { Column, CreateDateColumn, Entity, ForeignKey, PrimaryGeneratedColumn } from "typeorm";
 import { Medical_Record } from "./medical_record.entity";
 import { Measurement_Unit } from "./measurement_unit.entity";
+import { Patient } from "./patient.entity";
 
 @Entity()
 export class Health_Measurement {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ForeignKey(() => Medical_Record)
+    @ForeignKey(() => Patient)
     @Column('uuid')
+    patient_id: string;
+
+    @ForeignKey(() => Medical_Record)
+    @Column('uuid', { nullable: true })
     record_id: string;
 
     @ForeignKey(() => Measurement_Unit)

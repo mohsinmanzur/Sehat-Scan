@@ -67,35 +67,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
                     )}
                 </Pressable>
             </View>
-            {/*
-            <View style={styles.listContainer}>
-                <Text style={[styles.listLabel, { color: theme.muted }]}>
-                    Example dummy emails
-                </Text>
-                <FlatList
-                    data={filtered}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[
-                                styles.emailItem,
-                                { borderColor: theme.border },
-                            ]}
-                            onPress={() => handlePress(item.email)}
-                        >
-                            <Text style={{ color: theme.text, fontSize: 14 }}>
-                                {item.email}
-                            </Text>
-                            <Text style={{ color: theme.muted, fontSize: 12 }}>
-                                {item.condition.toUpperCase()} • {item.yearsOfData} yr data
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
-            
-            <View style={styles.safeBottom} />
-            */}
         </View>
     );
 };

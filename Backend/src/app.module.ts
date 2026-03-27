@@ -8,7 +8,8 @@ import { PatientModule } from './patient/patient.module';
 import dbConfig from 'src/config/db.config';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
-import { DocumentModule } from './document/document.module';
+import { MedicalRecordModule } from './medical_record/medical_record.module';
+import { HealthMeasurementModule } from './health_measurement/health_measurement.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { DocumentModule } from './document/document.module';
       inject: [ConfigService],
       useFactory: dbConfig,
     }),
-    DocumentModule,
+    MedicalRecordModule,
+    HealthMeasurementModule,
   ],
   controllers: [AppController],
   providers: [
