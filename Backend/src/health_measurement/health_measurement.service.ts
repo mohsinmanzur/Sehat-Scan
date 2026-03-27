@@ -24,6 +24,11 @@ export class HealthMeasurementService
         return await this.healthMeasurementRepo.findBy({ patient_id });
     }
 
+    async getHealthMeasurementById(id: string) : Promise<Health_Measurement | null>
+    {
+        return await this.healthMeasurementRepo.findOneBy({ id });
+    }
+
     async createHealthMeasurement(measurement: CreateMeasurementDto) : Promise<Health_Measurement>
     {
         const record = await this.healthMeasurementRepo.findOneBy({ id: measurement.record_id });

@@ -10,16 +10,23 @@ export class HealthMeasurementController {
   constructor(private readonly healthMeasurementService: HealthMeasurementService) {}
 
   @Get()
-  async getHealthMeasurements(@Query() patient_id?: string) : Promise<Health_Measurement[] | null>
+  async getHealthMeasurements(
+    @Query() patient_id?: string,
+    @Query() id?: string
+  ) : Promise<Health_Measurement[] | Promise<Health_Measurement> | null>
   {
     if (patient_id)
     {
       return await this.healthMeasurementService.getHealthMeasurementsByPatient(patient_id);
     }
+    if (id)
+    {
+      return await this.healthMeasurementService.getHealthMeasurementById(id);
+    }
     return await this.healthMeasurementService.getAllMeasurements();
   }
 
-  @Post('measurement')
+  @Post()
   async createHealthMeasurement(@Body() measurement: CreateMeasurementDto) : Promise<Health_Measurement>
   {
     return await this.healthMeasurementService.createHealthMeasurement(measurement);
