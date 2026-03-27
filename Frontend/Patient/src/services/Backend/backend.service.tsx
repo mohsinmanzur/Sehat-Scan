@@ -1,4 +1,5 @@
-import { createPatientDTO } from "./dto/createpatient.dto";
+import { HealthMeasurementDTO, MeasurementUnitDTO } from "../../types/models";
+import { PatientDTO } from "../../types/patients";
 
 enum allowedMethods
 {
@@ -44,19 +45,29 @@ class Backend
         return await response.json();
     }
 
-    async verifycode(email: string, code: string)
+    async verifycode(email: string, code: string) : Promise<Record<string, any>>
     {
+        if (!email || !code) throw new Error('Email and code are required for verification');
+
         const response = await this.request('/auth/verifycode', allowedMethods.POST, { email, code });
-        if (!response.ok) {
-            throw new Error(`Error in verifying code: ${response.status} ${response.statusText}`);
+
+        if (response.status === 404) {
+            return { needsRegistration: true };
         }
+
+        if (!response.ok) {
+            console.log(`Error in verifying code: ${response.status} ${response.statusText}: ${await response.text()}`)
+            throw new Error(`Error in verifying code: ${response.status} ${response.statusText}: ${await response.text()}`);
+        }
+
         const data = await response.json();
         this.jwt = data.jwt;
         this.refreshToken = data.refreshToken;
-        return true;
+
+        return data;
     }
 
-    async register(patientInfo: createPatientDTO)
+    async register(patientInfo: PatientDTO)
     {
         const response = await this.request('/auth/register', allowedMethods.POST, patientInfo);
         if (!response.ok) {
@@ -122,6 +133,49 @@ class Backend
             throw new Error(`Error in fetching patient: ${response.status} ${response.statusText}`);
         }
 
+        return await response.json();
+    }
+
+    // =========================
+    // Health Measurements
+    // =========================
+    async getMeasurementsByPatient(patientId: string)
+    {
+        const response = await this.request(`/health-measurement/?patient_id=${patientId}`, allowedMethods.GET);
+
+        if (!response.ok) {
+            throw new Error(`Error in fetching health measurements: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    }
+
+    async getMeasurementById(id: string)
+    {
+        const response = await this.request(`/health-measurement/?id=${id}`, allowedMethods.GET);
+
+        if (!response.ok) {
+            throw new Error(`Error in fetching health measurement: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    }
+
+    async createHealthMeasurement(measurement: HealthMeasurementDTO)
+    {
+        const response = await this.request('/health-measurement', allowedMethods.POST, measurement);
+        if (!response.ok) {
+            throw new Error(`Error in creating health measurement: ${response.status} ${response.statusText}`);
+        }
+        return await response.json();
+    }
+
+    async createMeasurementUnit(unit: MeasurementUnitDTO)
+    {
+        const response = await this.request('/health-measurement/unit', allowedMethods.POST, unit);
+        if (!response.ok) {
+            throw new Error(`Error in creating measurement unit: ${response.status} ${response.statusText}`);
+        }
         return await response.json();
     }
 }

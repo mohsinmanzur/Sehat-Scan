@@ -13,7 +13,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 import { useCurrentPatient } from '@context/UserContext';
-import { Report } from '@mock/reports';
 import { useTheme } from '@context/ThemeContext';
 
 interface Props {

@@ -21,6 +21,7 @@ const BottomTabs: React.FC = () => {
 
   return (
     <Tab.Navigator
+      initialRouteName='Home'
       id = 'BottomTabs'
       screenOptions={({ route }) => ({
         headerShown: false,

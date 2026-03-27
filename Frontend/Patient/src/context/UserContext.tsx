@@ -8,12 +8,9 @@ interface UserContextValue {
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
-    const [currentPatient, setCurrentPatient] = useState<PatientDTO | null>(
-        null
-    );
+export const UserProvider: React.FC<{ children: ReactNode }> = ({children}) => {
+    
+    const [currentPatient, setCurrentPatient] = useState<PatientDTO | null>(null);
 
     return (
         <UserContext.Provider value={{ currentPatient, setCurrentPatient }}>

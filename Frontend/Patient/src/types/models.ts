@@ -38,3 +38,30 @@ export interface InsightSeries {
   unit: string;
   points: InsightPoint[];
 }
+
+export type HealthMeasurementDTO = {
+    id?: string;
+    patient_id: string;
+    record_id?: string;
+    unit_id: string;
+    numeric_value: number;
+    created_at?: Date;
+};
+
+export type MeasurementUnitDTO = {
+    id?: string;
+    unit_name: string;
+    symbol: string;
+    reference_range: number[];
+};
+
+export type MedicalRecordDTO = {
+    id?: string;
+    patient_id: string;
+    file_name: string;
+    file_url: string;
+    record_type: 'lab_report' | 'prescription' | 'imaging' | 'other';
+    ocr_extracted_text?: string;
+    date_issued: Date;
+    created_at?: Date;
+};

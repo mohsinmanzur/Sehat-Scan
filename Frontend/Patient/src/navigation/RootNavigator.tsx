@@ -34,7 +34,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Otp" component={OtpScreen} />
       <Stack.Screen name="MainTabs" component={BottomTabs} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Reports" component={ReportsScreen} />
+      {/* <Stack.Screen name="Reports" component={ReportsScreen} /> */}
       <Stack.Screen name="Splash" component={SplashScreen} />
     </Stack.Navigator>
   </NavigationContainer>

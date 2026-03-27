@@ -10,7 +10,8 @@ export interface VitalSummary {
     riskLevel: RiskLevel;
 }
 
-export interface PatientDTO {
+export type PatientDTO = {
+    id?: string;
     email: string;
     name: string;
     date_of_birth: Date;
@@ -18,4 +19,6 @@ export interface PatientDTO {
     emergency_contact?: string;
     reward_points?: number;
     is_research_opt_in?: boolean;
-}
+    created_at?: Date;
+    updated_at?: Date;
+};

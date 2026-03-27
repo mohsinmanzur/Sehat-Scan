@@ -11,7 +11,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { reports as allReports } from '@mock/reports';
 import { useCurrentPatient } from '@context/UserContext';
 import { useTheme } from '@context/ThemeContext';
 

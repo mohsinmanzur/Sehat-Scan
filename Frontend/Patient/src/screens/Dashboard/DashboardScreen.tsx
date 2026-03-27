@@ -1,28 +1,21 @@
-// src/screens/Dashboard/DashboardScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useCurrentPatient } from '@context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@context/ThemeContext';
+import backend from 'src/services/Backend/backend.service';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlatList } from 'react-native-gesture-handler';
 
-type RiskLevel = 'normal' | 'borderline' | 'high';
-
-const DashboardScreen: React.FC = () => {
-  const { currentPatient } = useCurrentPatient();
+const DashboardScreen: React.FC = async () => {
   const navigation = useNavigation<any>();
-
-  const bp = currentPatient?.bpSummary;
-  const sugar = currentPatient?.sugarSummary;
-  const heart = currentPatient?.heartSummary;
   const { theme } = useTheme();
 
-  const anyDanger =
-    (bp && bp.riskLevel === 'high') ||
-    (sugar && sugar.riskLevel === 'high') ||
-    (heart && heart.riskLevel === 'high');
+  const { currentPatient } = useCurrentPatient();
+  const healthMeasurements = await backend.getMeasurementsByPatient(currentPatient?.id);
 
-  const getStatusColors = (risk: RiskLevel) => {
+  const getStatusColors = (risk) => {
     if (risk === 'normal')
       return {
         border: theme.success + '80',
@@ -39,7 +32,7 @@ const DashboardScreen: React.FC = () => {
     };
   };
 
-  const renderStatusIcon = (risk: RiskLevel) => {
+  const renderStatusIcon = (risk) => {
     if (risk === 'normal') {
       return (
         <Ionicons
@@ -67,12 +60,10 @@ const DashboardScreen: React.FC = () => {
     );
   };
 
+  const bp = getStatusColors('normal');
+  
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      {/* safe top */}
-      <View style={styles.safeTop} />
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
 
       {/* top bar */}
       <View style={styles.topBar}>
@@ -82,8 +73,7 @@ const DashboardScreen: React.FC = () => {
           </Text>
           <Text style={{ color: theme.muted, fontSize: 12 }}>
             {currentPatient
-              ? `${currentPatient.name} • ${currentPatient.condition?.toUpperCase?.() ?? ''
-              }`
+              ? `${currentPatient.name} •`
               : 'No patient selected'}
           </Text>
         </View>
@@ -98,7 +88,7 @@ const DashboardScreen: React.FC = () => {
       </View>
 
       {/* health warning banner */}
-      {anyDanger && (
+      {true && (
         <View
           style={[
             styles.warningBanner,
@@ -124,158 +114,64 @@ const DashboardScreen: React.FC = () => {
         </View>
       )}
 
-      <View style={styles.safeSpacerTop} />
-
       {/* main content */}
       <View style={styles.content}>
-        {/* BP card */}
-        {bp && (
-          <View
-            style={[
-              styles.card,
-              {
-                borderColor: getStatusColors(bp.riskLevel).border,
-                backgroundColor: getStatusColors(bp.riskLevel).bg,
-              },
-            ]}
-          >
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.iconCircle}>
-                <MaterialIcons
-                  name="favorite-border"
-                  size={26}
-                  color={theme.text}
-                />
+
+        <FlatList 
+          data = {healthMeasurements}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={() => (
+            <Text style={{ color: theme.muted, fontSize: 14, marginTop: 12 }} >
+              No summary values available yet. Scan or add a report from the Scan tab.
+            </Text>
+          )}
+          renderItem={({ item }) => (
+            <View
+              style={[
+                styles.card,
+                {
+                  borderColor: getStatusColors('normal').border,
+                  backgroundColor: getStatusColors('normal').bg,
+                },
+              ]}
+            >
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.iconCircle}>
+                  <MaterialIcons
+                    name="favorite-border"
+                    size={26}
+                    color={theme.text}
+                  />
+                </View>
+                <Text
+                  style={[styles.cardTitle, { color: theme.text }]}
+                  numberOfLines={1}
+                >
+                  Blood pressure
+                </Text>
+                {renderStatusIcon('normal')}
               </View>
               <Text
-                style={[styles.cardTitle, { color: theme.text }]}
+                style={[styles.mainValue, { color: theme.text }]}
                 numberOfLines={1}
               >
-                Blood pressure
+                10 bpm
               </Text>
-              {renderStatusIcon(bp.riskLevel)}
-            </View>
-            <Text
-              style={[styles.mainValue, { color: theme.text }]}
-              numberOfLines={1}
-            >
-              {bp.lastValue} {bp.unit}
-            </Text>
-            <Text
-              style={{
-                color: theme.muted,
-                fontSize: 13,
-                marginTop: 2,
-              }}
-            >
-              Trend: {bp.trend}
-            </Text>
-          </View>
-        )}
-
-        {/* Sugar card */}
-        {sugar && (
-          <View
-            style={[
-              styles.card,
-              {
-                borderColor: getStatusColors(sugar.riskLevel).border,
-                backgroundColor: getStatusColors(sugar.riskLevel).bg,
-              },
-            ]}
-          >
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.iconCircle}>
-                <MaterialIcons
-                  name="opacity"
-                  size={26}
-                  color={theme.text}
-                />
-              </View>
               <Text
-                style={[styles.cardTitle, { color: theme.text }]}
-                numberOfLines={1}
+                style={{
+                  color: theme.muted,
+                  fontSize: 13,
+                  marginTop: 2,
+                }}
               >
-                Blood sugar
+                Trend: hot
               </Text>
-              {renderStatusIcon(sugar.riskLevel)}
             </View>
-            <Text
-              style={[styles.mainValue, { color: theme.text }]}
-              numberOfLines={1}
-            >
-              {sugar.lastValue} {sugar.unit}
-            </Text>
-            <Text
-              style={{
-                color: theme.muted,
-                fontSize: 13,
-                marginTop: 2,
-              }}
-            >
-              Trend: {sugar.trend}
-            </Text>
-          </View>
-        )}
-
-        {/* Heart card */}
-        {heart && (
-          <View
-            style={[
-              styles.card,
-              {
-                borderColor: getStatusColors(heart.riskLevel).border,
-                backgroundColor: getStatusColors(heart.riskLevel).bg,
-              },
-            ]}
-          >
-            <View style={styles.cardHeaderRow}>
-              <View style={styles.iconCircle}>
-                <Ionicons
-                  name="heart-outline"
-                  size={26}
-                  color={theme.text}
-                />
-              </View>
-              <Text
-                style={[styles.cardTitle, { color: theme.text }]}
-                numberOfLines={1}
-              >
-                Heart rate
-              </Text>
-              {renderStatusIcon(heart.riskLevel)}
-            </View>
-            <Text
-              style={[styles.mainValue, { color: theme.text }]}
-              numberOfLines={1}
-            >
-              {heart.lastValue} {heart.unit}
-            </Text>
-            <Text
-              style={{
-                color: theme.muted,
-                fontSize: 13,
-                marginTop: 2,
-              }}
-            >
-              Trend: {heart.trend}
-            </Text>
-          </View>
-        )}
-
-        {!bp && !sugar && !heart && (
-          <Text
-            style={{ color: theme.muted, fontSize: 14, marginTop: 12 }}
-          >
-            No summary values available yet. Scan or add a report from the Scan
-            tab.
-          </Text>
-        )}
+          )}
+        />
       </View>
 
-      {/* safe bottom */}
-      <View style={styles.safeBottom} />
-    </View>
+    </SafeAreaView>
   );
 };
 

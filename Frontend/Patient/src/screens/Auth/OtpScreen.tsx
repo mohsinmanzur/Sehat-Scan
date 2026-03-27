@@ -1,13 +1,12 @@
-// src/screens/Auth/OtpScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
-import { patients } from '@mock/patients';
 import { useCurrentPatient } from '@context/UserContext';
 import { useTheme } from '@context/ThemeContext';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 import backend from 'src/services/Backend/backend.service';
+import Toast from 'react-native-toast-message';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
@@ -20,14 +19,44 @@ const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     const { theme } = useTheme();
 
     const handleVerify = async () => {
+
         setIsLoading(true);
-        const bool = await backend.verifycode(patientEmail, otp);
-        if (bool)
+        let verifyresponse;
+
+        try
         {
-            const patient = await backend.getPatientByEmail(patientEmail);
-            setCurrentPatient(patient);
-            navigation.replace('MainTabs');
+            verifyresponse = await backend.verifycode(patientEmail, otp);
         }
+        catch (error)
+        {
+            Toast.show({
+                type: 'error',
+                text1: 'Verification failed',
+                text2: error.message,
+                position: 'bottom',
+                visibilityTime: 3000,
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        if (verifyresponse.needsRegistration)
+        {
+            Toast.show({
+                type: 'info',
+                text1: 'No account found',
+                text2: 'Redirecting to registration...',
+                position: 'bottom',
+                visibilityTime: 3000
+            })
+            setIsLoading(false);
+            return;
+        }
+
+        const patient = await backend.getPatientByEmail(patientEmail);
+        setCurrentPatient(patient);
+        navigation.replace('MainTabs');
+
         setIsLoading(false);
     };
 
