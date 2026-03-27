@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Medical_Record } from 'src/entities/medical_record.entity';
-import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { CreateRecordDto } from './dto/create-record.dto';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class MedicalRecordService

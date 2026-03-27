@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Measurement_Unit } from 'src/entities/measurement_unit.entity';
-import { Repository } from 'typeorm/browser/repository/Repository.js';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { CreateMeasurementDto } from './dto/create-measurement.dto';
 import { Health_Measurement } from 'src/entities/health_measurement.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class HealthMeasurementService
