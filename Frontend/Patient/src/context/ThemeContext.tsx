@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
-import { colors } from '../constants/colors';
+import { Colors } from '../constants/colors';
 
 // Define the shape of the theme object
-type Theme = typeof colors.light;
+type Theme = typeof Colors.light;
 
 interface ThemeContextData {
   theme: Theme;
@@ -20,7 +20,7 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   const theme = useMemo(() => {
     const currentMode = mode === 'system' ? systemScheme : mode;
-    return currentMode === 'dark' ? colors.dark : colors.light;
+    return currentMode === 'dark' ? Colors.dark : Colors.light;
   }, [mode, systemScheme]);
 
   // Create a memoized JSON string of the current theme

@@ -1,17 +1,11 @@
-// src/screens/Auth/LoginScreen.tsx
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    ActivityIndicator,
-    Pressable,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import { useTheme } from '@context/ThemeContext';
 import backend from 'src/services/Backend/backend.service';
+import { Divider, Spacer, ThemedButton, ThemedText, ThemedTextInput, ThemedView } from 'src/components';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -32,89 +26,118 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, flex: 1, justifyContent: 'center' }]}>
+        <ThemedView style = {{ flex: 1 }} keyboardAvoid>
+            <ScrollView 
+                style = {{ flex: 1, width: '100%' }}
+                contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+            <Spacer height = {100} />
+            <Text style = {{ padding: 20, paddingBottom: 0, alignItems: 'center', textAlign: 'center' }}>
+                <ThemedText type = {'title'} style = {{ letterSpacing: -1 }}>Welcome to </ThemedText>
+                <ThemedText type = {'title'} style = {{ color: theme.primary, letterSpacing: -1 }}>Sehat{'\u00A0'}Scan</ThemedText>
+            </Text>
 
-            <View style={styles.safeTop} />
+            <ThemedText type = {'default'} style = {[styles.tagline, { color: theme.textLight }]}>
+                Medical documents management and AI-powered health insights, all in one app.
+            </ThemedText>
 
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>Login</Text>
-                <Text style={[styles.subtitle, { color: theme.muted }]}>
-                    Please enter your email.
-                </Text>
-            </View>
+            <Spacer height = {50} />
 
-            <View style={styles.form}>
-                <TextInput
-                    style={[
-                        styles.input,
-                        { borderColor: theme.border, color: theme.text },
-                    ]}
-                    placeholder="patient.email@example.com"
-                    placeholderTextColor={theme.muted}
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
+            <View style = {{ backgroundColor: theme.backgroundLight, borderRadius: 20, padding: 30, width: '90%' }}>
+                <ThemedText type = {'default'} style = {{ color: theme.textGray, fontFamily: 'PublicSans_600SemiBold' }}>
+                    Email or Phone Number
+                </ThemedText>
+
+                <ThemedTextInput style = {{
+                    backgroundColor: theme.card,
+                    borderColor: theme.card,
+                    width: '100%',
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    marginTop: 8,
+                    color: theme.textGray
+                }}
+                value={email}
+                onChangeText={setEmail}
+                placeholder = " name@example.com"
+                placeholderTextColor={theme.textVeryLight}
+                cursorColor={theme.primary}
+                selectionColor={theme.primarySoft}
+                keyboardType='email-address'
+                autoCapitalize='none'
                 />
-                <Pressable
-                    style={[styles.button, { backgroundColor: theme.primary, }]}
+
+                <ThemedButton
+                    style = {styles.continueButton}
                     onPress={() => handlePress(email)}
-                >
-                    {loading ? (
-                        <ActivityIndicator color = "#fff"/>
-                    ) : (
-                        <Text style={styles.buttonLabel}>Continue</Text>
-                    )}
-                </Pressable>
+                    >
+                    <ThemedText style = {{ color: theme.backgroundLight, padding: 7, fontFamily: 'PublicSans_600SemiBold' }}>Continue</ThemedText>
+
+                    <Ionicons name="arrow-forward" size={19} color={theme.backgroundLight} />
+                </ThemedButton>
+
+                <View style = {{ flexDirection: 'row', alignItems: 'center', marginTop: 15, justifyContent: 'center', gap: 10 }}>
+                    <Divider width = '40%' height = {1} color = {theme.muted} />
+                    <Text style = {{ fontSize: 13, fontFamily: 'PublicSans_600SemiBold', color: theme.muted }}>OR</Text>
+                    <Divider width = '40%' height = {1} color = {theme.muted} />
+                </View>
+
+                <ThemedButton
+                    style = {[styles.googleButton, { backgroundColor: theme.card }]}
+                    >
+
+                    <Ionicons name="logo-google" size={19} color={theme.textGray} />
+                    <ThemedText style = {{ color: theme.textGray, padding: 7, fontFamily: 'PublicSans_600SemiBold' }}>Continue with Google</ThemedText>
+                </ThemedButton>
             </View>
-        </View>
-    );
+
+            <Text style = {{ textAlign: 'center', padding: 40, paddingTop: 50 }}>
+                <ThemedText type = {'default'} style = {{ color: theme.textGray, fontSize: 12, paddingTop: 15 }}>
+                    By continuing, you agree to our{' '}
+                </ThemedText>
+                <ThemedText type = {'default'} style = {{ color: theme.primary, fontSize: 12 }}>
+                    Terms{'\u00A0'}of{'\u00A0'}Service
+                </ThemedText>
+                <ThemedText type = {'default'} style = {{ color: theme.textGray, fontSize: 12 }}>
+                    {' '}and{' '}
+                </ThemedText>
+                <ThemedText type = {'default'} style = {{ color: theme.primary, fontSize: 12 }}>
+                    Privacy{'\u00A0'}Policy
+                </ThemedText>
+                .
+            </Text>
+            </ScrollView>
+        </ThemedView>
+    )
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    safeTop: { height: 24 },
-    safeBottom: { height: 24 },
-    header: {
-        paddingHorizontal: 16,
-        marginBottom: 8,
+    tagline: {
+        paddingTop: 10,
+        paddingHorizontal: 30,
+        lineHeight: 20,
+        alignContent:
+        'center', textAlign:
+        'center'
     },
-    title: { fontSize: 24, fontWeight: '700' },
-    subtitle: { fontSize: 13, marginTop: 4 },
-    form: {
-        paddingHorizontal: 16,
-    },
-    input: {
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        fontSize: 14,
-        marginBottom: 8,
-    },
-    button: {
-        borderRadius: 999,
-        paddingVertical: 12,
+    continueButton: {
         alignItems: 'center',
+        alignContent: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+        marginTop: 20,
+        flexDirection: 'row'
     },
-    buttonLabel: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    listContainer: {
-        flex: 1,
-        paddingHorizontal: 16,
-        marginTop: 10,
-    },
-    listLabel: { fontSize: 13, marginBottom: 4 },
-    emailItem: {
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        marginBottom: 6,
-    },
+    googleButton: {
+        alignItems: 'center',
+        alignContent: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+        marginTop: 20,
+        flexDirection: 'row'
+    }
 });
 
 export default LoginScreen;

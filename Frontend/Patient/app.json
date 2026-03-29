@@ -1,25 +1,31 @@
 {
   "expo": {
-    "name": "SehatScan",
+    "name": "Sehat Scan",
     "slug": "sehatscan",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Logo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/Splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#020617"
+      "backgroundColor": "#2A5CFF",
+      "dark": {
+        "image": "./assets/Splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#0D0D0E"
+      }
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "android": {
-      "package": "com.sehatscan.patient",
+      "package": "com.mohsinmanzoor.sehatscan",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#020617"
-      }
+        "foregroundImage": "./assets/Blank.png",
+        "backgroundColor": "#2A5CFF"
+      },
+      "softwareKeyboardLayoutMode": "resize"
     },
     "extra": {
       "eas": {

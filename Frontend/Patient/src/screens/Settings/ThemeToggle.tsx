@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const modes: { label: string; value: 'light' | 'dark' | 'system' }[] = [
   { label: 'Light', value: 'light' },
@@ -23,8 +23,8 @@ const ThemeToggle: React.FC = () => {
               styles.button,
               {
                 backgroundColor:
-                  mode === m.value ? theme.primarySoft : theme.background,
-                borderColor: mode === m.value ? theme.primary : theme.border
+                  mode === m.value ? theme.primarySoft : theme.backgroundDark,
+                borderColor: mode === m.value ? theme.primary : theme.primary
               }
             ]}
           >
