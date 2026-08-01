@@ -34,6 +34,9 @@ export class Health_Measurement {
     @Column()
     numeric_value: number;
 
+    @Column('real', { nullable: true })
+    numeric_value_2: number;
+
     @CreateDateColumn()
     created_at: Date;
 

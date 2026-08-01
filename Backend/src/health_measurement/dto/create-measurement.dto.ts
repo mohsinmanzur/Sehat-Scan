@@ -19,6 +19,10 @@ export class CreateMeasurementDto {
     @IsNumber()
     numeric_value: number;
 
+    @IsOptional()
+    @IsNumber()
+    numeric_value_2?: number;
+
     @IsArray()
     @IsString({ each: true })
     @IsOptional()

@@ -19,6 +19,12 @@ export class Reference_Range {
     @Column({ default: 0 })
     max_value: number;
 
+    @Column({ default: 0, nullable: true })
+    min_value_2: number;
+
+    @Column({ default: 0, nullable: true })
+    max_value_2: number;
+
     @Column({
         enum: ['male', 'female', 'other'],
         nullable: true,

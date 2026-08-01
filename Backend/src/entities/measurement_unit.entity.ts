@@ -30,4 +30,7 @@ export class Measurement_Unit {
 
     @Column({ nullable: true })
     icon_name: string;
+
+    @Column({ default: false })
+    has_secondary_value: boolean;
 }
