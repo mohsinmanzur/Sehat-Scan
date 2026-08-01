@@ -3,6 +3,9 @@ export type MeasurementUnitDTO = {
     unit_name: string;
     symbol: string;
     measurement_group: string;
+    color_light?: string;
+    color_dark?: string;
+    icon_name?: string;
 };
 
 export type HealthMeasurementDTO = {

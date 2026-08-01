@@ -14,4 +14,16 @@ export class CreateMeasurementUnitDto
 
     @IsString()
     measurement_group: string;
+
+    @IsString()
+    @IsOptional()
+    color_light?: string;
+
+    @IsString()
+    @IsOptional()
+    color_dark?: string;
+
+    @IsString()
+    @IsOptional()
+    icon_name?: string;
 }

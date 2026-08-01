@@ -21,4 +21,13 @@ export class Measurement_Unit {
 
     @Column()
     measurement_group: string;
+
+    @Column({ nullable: true })
+    color_light: string;
+
+    @Column({ nullable: true })
+    color_dark: string;
+
+    @Column({ nullable: true })
+    icon_name: string;
 }

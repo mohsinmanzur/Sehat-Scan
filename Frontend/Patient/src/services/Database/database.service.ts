@@ -33,6 +33,9 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
             unit_name TEXT NOT NULL,
             symbol TEXT NOT NULL,
             measurement_group TEXT NOT NULL,
+            color_light TEXT,
+            color_dark TEXT,
+            icon_name TEXT,
             synced_at TEXT
         );
 
@@ -109,6 +112,20 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
         CREATE INDEX IF NOT EXISTS idx_pm_created ON pending_mutations(created_at);
         CREATE INDEX IF NOT EXISTS idx_docs_patient ON medical_documents(patient_id);
     `);
+
+    // --- Schema migrations for existing installs ---
+    const versionRow = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
+    const currentVersion = versionRow?.user_version ?? 0;
+
+    if (currentVersion < 1) {
+        // v1: add color and icon columns to measurement_units
+        await db.execAsync(`
+            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS color_light TEXT;
+            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS color_dark TEXT;
+            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS icon_name TEXT;
+        `);
+        await db.execAsync('PRAGMA user_version = 1');
+    }
 
     return db;
 }

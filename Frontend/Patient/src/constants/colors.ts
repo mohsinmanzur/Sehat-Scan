@@ -18,32 +18,6 @@ export const Colors = {
     success: '#4CAF50',
     successLight: '#F0FDF4',
     shadow: '#000000',
-    items: [
-      {
-        primary: '#BA1A1A',
-        secondary: '#FFF4F3',
-      },
-      {
-        primary: '#770058',
-        secondary: '#fff3fe',
-      },
-      {
-        primary: '#D98324',
-        secondary: '#fffaf3',
-      },
-      {
-        primary: '#13acc4',
-        secondary: '#f3fdff',
-      },
-      {
-        primary: '#FC9F5B',
-        secondary: '#fffaf3',
-      },
-      {
-        primary: '#D66BA0',
-        secondary: '#fff3ff',
-      }
-    ]
   },
   dark: {
     primary: '#96A9FF',
@@ -64,31 +38,5 @@ export const Colors = {
     success: '#22c55e',
     successLight: '#192A24',
     shadow: '#000000',
-    items: [
-      {
-        primary: '#e73131',
-        secondary: '#312224',
-      },
-      {
-        primary: '#df0885',
-        secondary: '#312230'
-      },
-      {
-        primary: '#f59127',
-        secondary: '#312a22'
-      },
-      {
-        primary: '#52B2CF',
-        secondary: '#223031'
-      },
-      {
-        primary: '#FC9F5B',
-        secondary: '#312a22'
-      },
-      {
-        primary: '#AF4D98',
-        secondary: '#312230'
-      }
-    ]
   }
 };

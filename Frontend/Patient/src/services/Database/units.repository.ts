@@ -8,14 +8,17 @@ export async function upsertMeasurementUnits(
 ): Promise<void> {
     for (const unit of units) {
         await db.runAsync(
-            `INSERT INTO measurement_units (id, unit_name, symbol, measurement_group, synced_at)
-             VALUES (?, ?, ?, ?, ?)
+            `INSERT INTO measurement_units (id, unit_name, symbol, measurement_group, color_light, color_dark, icon_name, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
              ON CONFLICT(id) DO UPDATE SET
                  unit_name = excluded.unit_name,
                  symbol = excluded.symbol,
                  measurement_group = excluded.measurement_group,
+                 color_light = excluded.color_light,
+                 color_dark = excluded.color_dark,
+                 icon_name = excluded.icon_name,
                  synced_at = excluded.synced_at`,
-            [unit.id ?? '', unit.unit_name, unit.symbol, unit.measurement_group, new Date().toISOString()]
+            [unit.id ?? '', unit.unit_name, unit.symbol, unit.measurement_group, unit.color_light ?? null, unit.color_dark ?? null, unit.icon_name ?? null, new Date().toISOString()]
         );
     }
 }
@@ -85,6 +88,9 @@ function rowToUnit(row: Record<string, unknown>): MeasurementUnit {
         unit_name: row.unit_name as string,
         symbol: row.symbol as string,
         measurement_group: row.measurement_group as string,
+        color_light: (row.color_light as string) ?? undefined,
+        color_dark: (row.color_dark as string) ?? undefined,
+        icon_name: (row.icon_name as string) ?? undefined,
     };
 }
 

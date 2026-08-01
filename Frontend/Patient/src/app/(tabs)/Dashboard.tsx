@@ -7,14 +7,13 @@ import { Spacer, ThemedText, ThemedView } from '../../components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HealthMeasurement } from '../../types/types';
 import { UpdatedMeasurementCard } from '../../components/dashboard/UpdatedMeasurementCard';
-import { iconMap } from '../../constants/general';
-import { SkeletonCard } from '../../components/dashboard/SkeletonCard';
 import { useMeasurements } from '../../hooks/useMeasurements';
+import { SkeletonCard } from '../../components/dashboard/SkeletonCard';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 
 const DashboardScreen: React.FC = () => {
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const { currentPatient } = useCurrentPatient();
   const insets = useSafeAreaInsets();
   const patientName = currentPatient?.name?.split(' ')[0] || 'Arjun';
@@ -107,10 +106,13 @@ const DashboardScreen: React.FC = () => {
             renderItem={({ item: unit, index }) => {
               const latest = unit === 'Blood Pressure' ? getLatestMeasurementsForUnit(unit, 'Systolic') : getLatestMeasurementsForUnit(unit);
               const secondaryLatest = unit === 'Blood Pressure' ? getLatestMeasurementsForUnit(unit, 'Diastolic') : undefined;
-              const iconName = iconMap[unit] || 'activity';
+              const iconName = latest?.measurement_unit?.icon_name || 'activity';
 
-              const primaryColor = theme.items[index % theme.items.length].primary;
-              const secondaryColor = theme.items[index % theme.items.length].secondary;
+              const isDark = mode === 'dark';
+              const primaryColor = isDark
+                ? (latest?.measurement_unit?.color_dark ?? theme.primary)
+                : (latest?.measurement_unit?.color_light ?? theme.primary);
+              const secondaryColor = primaryColor === theme.primary ? theme.primarySoft : (primaryColor + '22');
 
               let fullHistory = measurements
                 .filter(m => m.measurement_unit?.measurement_group === unit)

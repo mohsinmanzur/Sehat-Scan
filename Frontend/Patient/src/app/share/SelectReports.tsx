@@ -7,7 +7,6 @@ import { useTheme } from 'src/context/ThemeContext';
 import backend from 'src/services/Backend/backend.service';
 import { useCurrentPatient } from '@context/PatientContext';
 import { HealthMeasurement } from '../../types/types';
-import { iconMap } from '../../constants/general';
 import { formatFullDateTime } from 'src/utils/date';
 import { ScalePressable } from 'src/components/ScalePressable';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -17,7 +16,7 @@ import { GhostElement } from 'src/components/GhostElement';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SelectReportsScreen = () => {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { currentPatient } = useCurrentPatient();
     const { selectedReports, setSelectedReports } = useGlobalContext();
 
@@ -173,10 +172,12 @@ const SelectReportsScreen = () => {
                             return true;
                         }).map(item => {
                             const isSelected = selectedReports.has(item.id);
-                            const unitIndex = units.indexOf(item.measurement_unit.measurement_group) - 1; // subtract 1 to account for 'All' at index 0, aligning with Dashboard
-                            const primaryColor = theme.items[unitIndex % theme.items.length]?.primary || theme.primary;
-                            const secondaryColor = theme.items[unitIndex % theme.items.length]?.secondary || theme.primarySoft;
-                            const iconName = iconMap[item.measurement_unit.measurement_group] || 'activity';
+                            const isDark = mode === 'dark';
+                            const primaryColor = isDark
+                                ? (item.measurement_unit?.color_dark ?? theme.primary)
+                                : (item.measurement_unit?.color_light ?? theme.primary);
+                            const secondaryColor = primaryColor === theme.primary ? theme.primarySoft : (primaryColor + '22');
+                            const iconName = item.measurement_unit?.icon_name || 'activity';
 
                             let diastolicItem: HealthMeasurement | undefined;
                             if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && item.measurement_unit.unit_name.toLowerCase() === 'systolic') {

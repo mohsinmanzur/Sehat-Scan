@@ -7,7 +7,6 @@ import { useTheme } from 'src/context/ThemeContext';
 import backend from 'src/services/Backend/backend.service';
 import { useCurrentPatient } from '@context/PatientContext';
 import { AccessGrant, HealthMeasurement } from '../../types/types';
-import { iconMap } from '../../constants/general';
 import { formatFullDateTime } from 'src/utils/date';
 import { ScalePressable } from 'src/components/ScalePressable';
 import { router } from 'expo-router';
@@ -22,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const SharedDetailScreen = () => {
     const { data } = useLocalSearchParams<{ data: string }>();
     const { currentPatient } = useCurrentPatient();
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const insets = useSafeAreaInsets();
 
     const [measurements, setMeasurements] = useState<HealthMeasurement[]>([]);
@@ -187,10 +186,12 @@ const SharedDetailScreen = () => {
                             }
                             return true;
                         }).map(item => {
-                            const unitIndex = units.indexOf(item.measurement_unit.measurement_group) - 1; // subtract 1 to account for 'All' at index 0, aligning with Dashboard
-                            const primaryColor = theme.items[unitIndex % theme.items.length]?.primary || theme.primary;
-                            const secondaryColor = theme.items[unitIndex % theme.items.length]?.secondary || theme.primarySoft;
-                            const iconName = iconMap[item.measurement_unit.measurement_group] || 'activity';
+                            const isDark = mode === 'dark';
+                            const primaryColor = isDark
+                                ? (item.measurement_unit?.color_dark ?? theme.primary)
+                                : (item.measurement_unit?.color_light ?? theme.primary);
+                            const secondaryColor = primaryColor === theme.primary ? theme.primarySoft : (primaryColor + '22');
+                            const iconName = item.measurement_unit?.icon_name || 'activity';
 
                             return (
                                 <ScalePressable

@@ -7,7 +7,6 @@ import { AccessGrant, HealthMeasurement } from '../../types/types';
 import backend from 'src/services/Backend/backend.service';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { UpdatedMeasurementCard } from 'src/components/dashboard/UpdatedMeasurementCard';
-import { iconMap } from '../../constants/general';
 import { SkeletonCard } from 'src/components/dashboard/SkeletonCard';
 import { ScalePressable } from 'src/components/ScalePressable';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -16,7 +15,7 @@ const SharedDashboardScreen: React.FC = () => {
 
     const { sharingId } = useLocalSearchParams<{ sharingId: string }>();
 
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const insets = useSafeAreaInsets();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -114,10 +113,13 @@ const SharedDashboardScreen: React.FC = () => {
 
                             const latest = unit === 'Blood Pressure' ? getLatest(unit, 'Systolic') : getLatest(unit);
                             const secondaryLatest = unit === 'Blood Pressure' ? getLatest(unit, 'Diastolic') : undefined;
-                            const iconName = iconMap[unit] || 'activity';
+                            const iconName = latest?.measurement_unit?.icon_name || 'activity';
 
-                            const primaryColor = theme.items[index % theme.items.length].primary;
-                            const secondaryColor = theme.items[index % theme.items.length].secondary;
+                            const isDark = mode === 'dark';
+                            const primaryColor = isDark
+                                ? (latest?.measurement_unit?.color_dark ?? theme.primary)
+                                : (latest?.measurement_unit?.color_light ?? theme.primary);
+                            const secondaryColor = primaryColor === theme.primary ? theme.primarySoft : (primaryColor + '22');
 
                             let fullHistory = measurements
                                 .filter(m => m.measurement_unit.measurement_group === unit)
