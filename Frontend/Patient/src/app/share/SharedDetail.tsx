@@ -42,12 +42,9 @@ const SharedDetailScreen = () => {
             temp.forEach(measurement => {
                 const group = measurement.measurement_unit.measurement_group;
 
-                if (group !== 'Blood Pressure') {
+                if (group) {
                     unitSet.add(group);
-                }
-                else {
-                    unitSet.add("Blood Pressure");
-                }
+                }    
             });
             setUnits(Array.from(unitSet));
         }
@@ -181,9 +178,7 @@ const SharedDetailScreen = () => {
                         {measurements.filter(item => {
                             const matchesFilter = activeFilter === 'All' || item.measurement_unit.measurement_group === activeFilter;
                             if (!matchesFilter) return false;
-                            if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure') {
-                                return item.measurement_unit.unit_name.toLowerCase() === 'systolic';
-                            }
+                            const measurement2 = item.numeric_value_2;
                             return true;
                         }).map(item => {
                             const isDark = mode === 'dark';

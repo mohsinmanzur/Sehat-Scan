@@ -111,9 +111,8 @@ export const WeightChart: React.FC<WeightChartProps> = ({ measurements, secondar
                     const primaryMeas = chronological[i];
                     const secondaryMeas = chronologicalSecondary[i];
 
-                    const isDiastolic = primaryMeas?.measurement_unit?.unit_name?.toLowerCase() === 'diastolic';
-                    const displayFirst = isDiastolic && secondaryMeas ? secondaryMeas.numeric_value : primaryMeas?.numeric_value;
-                    const displaySecond = isDiastolic && secondaryMeas ? primaryMeas?.numeric_value : secondaryMeas?.numeric_value;
+                    const displayFirst = primaryMeas?.numeric_value;
+                    const displaySecond = secondaryMeas?.numeric_value;
 
                     const valueStr = displayFirst?.toString();
                     const secondaryValueStr = displaySecond?.toString();

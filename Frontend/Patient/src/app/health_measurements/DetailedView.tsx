@@ -20,18 +20,22 @@ export default function DetailedViewScreen() {
     const { currentPatient } = useCurrentPatient();
     const { theme } = useTheme();
 
-    const measurement = useMemo(() => {
-        if (!data) return null;
+    const initialMeasurements = useMemo(() => {
+        if (!data) return [];
         try {
             const parsedData = JSON.parse(data);
-            if (Array.isArray(parsedData) && parsedData.length > 0) {
-                return parsedData[parsedData.length - 1] as HealthMeasurement;
-            }
-            return parsedData as HealthMeasurement;
+            return Array.isArray(parsedData) ? parsedData : [parsedData];
         } catch {
-            return null;
+            return [];
         }
     }, [data]);
+
+    const measurement = useMemo(() => {
+        if (initialMeasurements.length > 0) {
+            return initialMeasurements[initialMeasurements.length - 1] as HealthMeasurement;
+        }
+        return null;
+    }, [initialMeasurements]);
 
     const { measurements: allPatientMeasurements, isLoading, isSyncing, refresh, reloadFromCache } = useMeasurements(currentPatient?.id);
     const { ranges: primaryRanges } = useReferenceRanges(measurement?.measurement_unit?.id);
@@ -39,27 +43,19 @@ export default function DetailedViewScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const { allMeasurements, diastolicMeasurements } = useMemo(() => {
-        if (!measurement || allPatientMeasurements.length === 0) {
+        const sourceMeasurements = allPatientMeasurements.length > 0 ? allPatientMeasurements : initialMeasurements;
+
+        if (!measurement || sourceMeasurements.length === 0) {
             return { allMeasurements: [], diastolicMeasurements: [] as (HealthMeasurement | null)[] };
         }
 
-        let filtered = allPatientMeasurements.filter(m =>
+        let filtered = sourceMeasurements.filter(m =>
             m.measurement_unit?.measurement_group?.toLowerCase() === measurement.measurement_unit?.measurement_group?.toLowerCase()
         );
 
-        let alignedDiastolic: (HealthMeasurement | null)[] = [];
-
-        if (measurement.measurement_unit?.measurement_group?.toLowerCase() === 'blood pressure') {
-            const diastolicRaw = filtered.filter(m => m.measurement_unit?.unit_name?.toLowerCase() === 'diastolic');
-            filtered = filtered.filter(m => m.measurement_unit?.unit_name?.toLowerCase() !== 'diastolic');
-            alignedDiastolic = filtered.map(primary =>
-                diastolicRaw.find(sec =>
-                    new Date(sec.created_at!).getTime() === new Date(primary.created_at!).getTime()
-                ) || null
-            );
-        } else {
-            filtered = filtered.filter(m => m.measurement_unit?.unit_name === measurement.measurement_unit?.unit_name);
-        }
+        let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m => 
+            m.numeric_value_2 != null ? { ...m, numeric_value: m.numeric_value_2 } : null
+        );
 
         return { allMeasurements: filtered, diastolicMeasurements: alignedDiastolic };
     }, [allPatientMeasurements, measurement]);
@@ -69,13 +65,7 @@ export default function DetailedViewScreen() {
         [measurement, primaryRanges, currentPatient]
     );
 
-    const diastolicUnit = diastolicMeasurements[0] ?? null;
-    const { ranges: diastolicRanges } = useReferenceRanges(diastolicUnit?.measurement_unit?.id);
 
-    const diastolicReferenceRange: ReferenceRange | null = useMemo(
-        () => diastolicUnit ? findBestReferenceRange(diastolicUnit, diastolicRanges, currentPatient ?? undefined) : null,
-        [diastolicUnit, diastolicRanges, currentPatient]
-    );
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -98,6 +88,8 @@ export default function DetailedViewScreen() {
             router.back();
         }
     }, [isLoading, allMeasurements]);
+
+    const showLoading = isLoading && allMeasurements.length === 0;
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(24)).current;
@@ -145,23 +137,23 @@ export default function DetailedViewScreen() {
                     <Text style={[styles.currentLabel, { color: theme.textLight }]}>
                         CURRENT {measurement?.measurement_unit?.measurement_group?.toUpperCase()}
                     </Text>
-                    {isLoading ? (
+                    {showLoading ? (
                         <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14 }} />
                     ) : (() => {
                         const primaryVal = allMeasurements[0]?.numeric_value;
-                        const diastolicItem = diastolicMeasurements[0]?.numeric_value;
+                        const measurement2 = diastolicMeasurements[0]?.numeric_value;
                         return (
                             <View style={styles.currentRow}>
                                 <Text style={[styles.currentValue, { color: theme.text }]}>{primaryVal}</Text>
-                                {diastolicItem !== undefined && diastolicItem !== null &&
-                                    <Text style={[styles.currentValue, { color: theme.text, fontSize: 45 }]}>/{diastolicItem}</Text>
+                                {measurement2 !== undefined && measurement2 !== null &&
+                                    <Text style={[styles.currentValue, { color: theme.text, fontSize: 45 }]}>/{measurement2}</Text>
                                 }
                                 <Text style={[styles.currentUnit, { color: theme.text }]}>{measurement?.measurement_unit?.symbol}</Text>
                             </View>
                         );
                     })()}
 
-                    {isLoading ? (
+                    {showLoading ? (
                         <GhostElement style={{ height: 38, width: 180, borderRadius: 24, marginBottom: 24 }} />
                     ) : (
                         stats && (
@@ -171,10 +163,10 @@ export default function DetailedViewScreen() {
                                     {bestReferenceRange ? (
                                         <ThemedText>
                                             {bestReferenceRange.min_value}
-                                            {diastolicReferenceRange && `/${diastolicReferenceRange.min_value}`}
+                                            {bestReferenceRange.min_value_2 != null && `/${bestReferenceRange.min_value_2}`}
                                             {' - '}
                                             {bestReferenceRange.max_value}
-                                            {diastolicReferenceRange && `/${diastolicReferenceRange.max_value}`}
+                                            {bestReferenceRange.max_value_2 != null && `/${bestReferenceRange.max_value_2}`}
                                             {` ${measurement?.measurement_unit?.symbol}`}
                                         </ThemedText>
                                     ) : (
@@ -190,7 +182,7 @@ export default function DetailedViewScreen() {
                     style={[styles.card, { backgroundColor: theme.backgroundLight, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
                 >
                     <View style={styles.cardHeader}>
-                        {isLoading ? (
+                        {showLoading ? (
                             <GhostElement style={{ height: 20, width: 150, borderRadius: 4, marginBottom: 3 }} />
                         ) : stats ? (
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
@@ -202,7 +194,7 @@ export default function DetailedViewScreen() {
                             </View>
                         ) : null}
                     </View>
-                    {isLoading ? (
+                    {showLoading ? (
                         <GhostElement style={{ height: 180, borderRadius: 12, marginTop: 10 }} />
                     ) : (
                         <WeightChart measurements={allMeasurements} secondaryMeasurements={diastolicMeasurements} color={primaryColor} />
@@ -214,7 +206,7 @@ export default function DetailedViewScreen() {
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>History</Text>
                     </View>
                     <View style={[styles.logCard, { backgroundColor: theme.backgroundLight }]}>
-                        {isLoading ? (
+                        {showLoading ? (
                             <View style={{ padding: 16, gap: 16 }}>
                                 {[1, 2, 3, 4].map(key => (
                                     <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>

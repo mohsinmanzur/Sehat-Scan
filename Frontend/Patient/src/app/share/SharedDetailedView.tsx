@@ -24,28 +24,18 @@ export default function DetailedViewScreen() {
     const [diastolicMeasurements, setDiastolicMeasurements] = useState<(HealthMeasurement | null)[]>([]);
 
     const [bestReferenceRange, setBestReferenceRange] = useState<ReferenceRange | null>();
-    const [diastolicReferenceRange, setDiastolicReferenceRange] = useState<ReferenceRange | null>();
+
 
     const processMeasurements = useCallback(async (parsedData: HealthMeasurement[], showLoading = true) => {
         if (showLoading) setIsLoading(true);
         try {
-            let filtered = parsedData.filter(m =>
-                m.measurement_unit?.measurement_group.toLowerCase() === parsedData?.[0]?.measurement_unit?.measurement_group.toLowerCase()
+            let filtered = parsedData.filter((m) =>
+                m.measurement_unit?.measurement_group?.toLowerCase() === parsedData?.[0]?.measurement_unit?.measurement_group?.toLowerCase()
             );
-            let alignedDiastolic: (HealthMeasurement | null)[] = [];
 
-            if (parsedData?.[0]?.measurement_unit?.measurement_group.toLowerCase() === 'blood pressure') {
-                const diastolicRaw = filtered.filter(m =>
-                    m.measurement_unit?.unit_name.toLowerCase() === 'diastolic'
-                );
-                filtered = filtered.filter(m => m.measurement_unit?.unit_name.toLowerCase() !== 'diastolic');
-
-                alignedDiastolic = filtered.map(primary =>
-                    diastolicRaw.find(sec => sec.created_at === primary.created_at) || null
-                );
-            } else {
-                filtered = filtered.filter(m => m.measurement_unit?.unit_name === parsedData?.[0]?.measurement_unit?.unit_name);
-            }
+            let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m => 
+                m.numeric_value_2 != null ? { ...m, numeric_value: m.numeric_value_2 } : null
+            );
 
             if (filtered.length === 0) {
                 router.back();
@@ -58,12 +48,6 @@ export default function DetailedViewScreen() {
             const ranges = await backend.getReferenceRanges(filtered[0].measurement_unit.id);
             setBestReferenceRange(findBestReferenceRange(filtered[0], ranges));
 
-            if (alignedDiastolic.length > 0 && alignedDiastolic[0]) {
-                const dRanges = await backend.getReferenceRanges(alignedDiastolic[0].measurement_unit.id);
-                setDiastolicReferenceRange(findBestReferenceRange(alignedDiastolic[0], dRanges));
-            } else {
-                setDiastolicReferenceRange(null);
-            }
         } catch (error) {
             console.error("Failed to fetch measurements", error);
         } finally {
@@ -125,12 +109,12 @@ export default function DetailedViewScreen() {
                         <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14 }} />
                     ) : (() => {
                         const primaryVal = allMeasurements[0]?.numeric_value;
-                        const diastolicItem = diastolicMeasurements[0]?.numeric_value;
+                        const measurement2 = diastolicMeasurements[0]?.numeric_value;
 
                         return (
                             <View style={styles.currentRow}>
                                 <Text style={[styles.currentValue, { color: theme.text }]}>{primaryVal}</Text>
-                                {diastolicItem !== undefined && diastolicItem !== null && <Text style={[styles.currentValue, { color: theme.text, fontSize: 45 }]}>/{diastolicItem}</Text>}
+                                {measurement2 !== undefined && measurement2 !== null && <Text style={[styles.currentValue, { color: theme.text, fontSize: 45 }]}>/{measurement2}</Text>}
                                 <Text style={[styles.currentUnit, { color: theme.text }]}>{allMeasurements?.[0]?.measurement_unit?.symbol}</Text>
                             </View>
                         );
@@ -146,10 +130,10 @@ export default function DetailedViewScreen() {
                                     {bestReferenceRange ? (
                                         <ThemedText>
                                             {bestReferenceRange.min_value}
-                                            {diastolicReferenceRange && `/${diastolicReferenceRange.min_value}`}
-                                            {" - "}
+                                            {bestReferenceRange.min_value_2 != null && `/${bestReferenceRange.min_value_2}`}
+                                            {' - '}
                                             {bestReferenceRange.max_value}
-                                            {diastolicReferenceRange && `/${diastolicReferenceRange.max_value}`}
+                                            {bestReferenceRange.max_value_2 != null && `/${bestReferenceRange.max_value_2}`}
                                             {` ${allMeasurements?.[0]?.measurement_unit?.symbol}`}
                                         </ThemedText>
                                     ) : (

@@ -8,8 +8,8 @@ export async function upsertMeasurementUnits(
 ): Promise<void> {
     for (const unit of units) {
         await db.runAsync(
-            `INSERT INTO measurement_units (id, unit_name, symbol, measurement_group, color_light, color_dark, icon_name, synced_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO measurement_units (id, unit_name, symbol, measurement_group, color_light, color_dark, icon_name, has_secondary_value, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON CONFLICT(id) DO UPDATE SET
                  unit_name = excluded.unit_name,
                  symbol = excluded.symbol,
@@ -17,8 +17,9 @@ export async function upsertMeasurementUnits(
                  color_light = excluded.color_light,
                  color_dark = excluded.color_dark,
                  icon_name = excluded.icon_name,
+                 has_secondary_value = excluded.has_secondary_value,
                  synced_at = excluded.synced_at`,
-            [unit.id ?? '', unit.unit_name, unit.symbol, unit.measurement_group, unit.color_light ?? null, unit.color_dark ?? null, unit.icon_name ?? null, new Date().toISOString()]
+            [unit.id ?? '', unit.unit_name, unit.symbol, unit.measurement_group, unit.color_light ?? null, unit.color_dark ?? null, unit.icon_name ?? null, unit.has_secondary_value ? 1 : 0, new Date().toISOString()]
         );
     }
 }
@@ -91,6 +92,7 @@ function rowToUnit(row: Record<string, unknown>): MeasurementUnit {
         color_light: (row.color_light as string) ?? undefined,
         color_dark: (row.color_dark as string) ?? undefined,
         icon_name: (row.icon_name as string) ?? undefined,
+        has_secondary_value: row.has_secondary_value === 1,
     };
 }
 

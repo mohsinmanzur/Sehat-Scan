@@ -48,6 +48,7 @@ export type HealthMeasurement = {
     unit_id?: string;
     measurement_unit?: MeasurementUnit;
     numeric_value: number;
+    numeric_value_2?: number;
     created_at?: Date;
     updated_at?: Date;
     special_conditions?: string[];
@@ -61,6 +62,7 @@ export type MeasurementUnit = {
     color_light?: string;
     color_dark?: string;
     icon_name?: string;
+    has_secondary_value?: boolean;
 };
 
 export type ReferenceRange = {
@@ -68,6 +70,8 @@ export type ReferenceRange = {
     measurement_unit: MeasurementUnit;
     min_value: number;
     max_value: number;
+    min_value_2?: number;
+    max_value_2?: number;
     target_gender?: 'male' | 'female' | 'other';
     min_age?: number;
     max_age?: number;

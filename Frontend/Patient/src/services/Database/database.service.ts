@@ -36,6 +36,7 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
             color_light TEXT,
             color_dark TEXT,
             icon_name TEXT,
+            has_secondary_value INTEGER DEFAULT 0,
             synced_at TEXT
         );
 
@@ -44,6 +45,8 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
             unit_id TEXT NOT NULL,
             min_value REAL NOT NULL,
             max_value REAL NOT NULL,
+            min_value_2 REAL,
+            max_value_2 REAL,
             target_gender TEXT,
             min_age INTEGER,
             max_age INTEGER,
@@ -71,6 +74,7 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
             unit_id TEXT NOT NULL,
             document_id TEXT,
             numeric_value REAL NOT NULL,
+            numeric_value_2 REAL,
             special_conditions TEXT,
             created_at TEXT,
             updated_at TEXT,
@@ -119,12 +123,106 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
 
     if (currentVersion < 1) {
         // v1: add color and icon columns to measurement_units
-        await db.execAsync(`
-            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS color_light TEXT;
-            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS color_dark TEXT;
-            ALTER TABLE measurement_units ADD COLUMN IF NOT EXISTS icon_name TEXT;
-        `);
+        const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(measurement_units)');
+        const columnNames = columns.map(c => c.name);
+
+        if (!columnNames.includes('color_light')) {
+            await db.execAsync('ALTER TABLE measurement_units ADD COLUMN color_light TEXT;');
+        }
+        if (!columnNames.includes('color_dark')) {
+            await db.execAsync('ALTER TABLE measurement_units ADD COLUMN color_dark TEXT;');
+        }
+        if (!columnNames.includes('icon_name')) {
+            await db.execAsync('ALTER TABLE measurement_units ADD COLUMN icon_name TEXT;');
+        }
         await db.execAsync('PRAGMA user_version = 1');
+    }
+
+    if (currentVersion < 2) {
+        // v2: add numeric_value_2 and has_secondary_value, merge Diastolic records
+        const hmCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(health_measurements)');
+        if (!hmCols.map(c => c.name).includes('numeric_value_2')) {
+            await db.execAsync('ALTER TABLE health_measurements ADD COLUMN numeric_value_2 REAL;');
+        }
+
+        const muCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(measurement_units)');
+        if (!muCols.map(c => c.name).includes('has_secondary_value')) {
+            await db.execAsync('ALTER TABLE measurement_units ADD COLUMN has_secondary_value INTEGER DEFAULT 0;');
+        }
+
+        // Merge existing Diastolic records into Systolic records locally
+        await db.execAsync(`
+            UPDATE health_measurements
+            SET numeric_value_2 = (
+                SELECT hm_dia.numeric_value 
+                FROM health_measurements hm_dia
+                JOIN measurement_units u_dia ON hm_dia.unit_id = u_dia.id
+                WHERE u_dia.unit_name = 'Diastolic'
+                  AND hm_dia.patient_id = health_measurements.patient_id
+                  AND hm_dia.created_at = health_measurements.created_at
+            )
+            WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Systolic');
+        `);
+
+        // Delete Diastolic records (they are now merged into numeric_value_2)
+        await db.execAsync(`
+            DELETE FROM health_measurements
+            WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Diastolic');
+        `);
+
+        // Clean up the measurement_units table
+        await db.execAsync(`
+            DELETE FROM measurement_units WHERE unit_name = 'Diastolic';
+            UPDATE measurement_units SET unit_name = 'Blood Pressure', has_secondary_value = 1 WHERE unit_name = 'Systolic';
+        `);
+
+        await db.execAsync('PRAGMA user_version = 2');
+    }
+
+    if (currentVersion < 3) {
+        // v3: add min_value_2 and max_value_2 to reference_ranges, merge Diastolic ranges
+        const rrCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(reference_ranges)');
+        const colNames = rrCols.map(c => c.name);
+        if (!colNames.includes('min_value_2')) {
+            await db.execAsync('ALTER TABLE reference_ranges ADD COLUMN min_value_2 REAL DEFAULT 0;');
+        }
+        if (!colNames.includes('max_value_2')) {
+            await db.execAsync('ALTER TABLE reference_ranges ADD COLUMN max_value_2 REAL DEFAULT 0;');
+        }
+
+        // Merge existing Diastolic reference ranges into Systolic (now Blood Pressure) ranges locally
+        await db.execAsync(`
+            UPDATE reference_ranges
+            SET min_value_2 = (
+                SELECT rr_dia.min_value 
+                FROM reference_ranges rr_dia
+                JOIN measurement_units u_dia ON rr_dia.unit_id = u_dia.id
+                WHERE u_dia.unit_name = 'Diastolic'
+                  AND rr_dia.target_gender IS reference_ranges.target_gender
+                  AND rr_dia.min_age IS reference_ranges.min_age
+                  AND rr_dia.max_age IS reference_ranges.max_age
+                  AND rr_dia.special_conditions IS reference_ranges.special_conditions
+            ),
+            max_value_2 = (
+                SELECT rr_dia.max_value 
+                FROM reference_ranges rr_dia
+                JOIN measurement_units u_dia ON rr_dia.unit_id = u_dia.id
+                WHERE u_dia.unit_name = 'Diastolic'
+                  AND rr_dia.target_gender IS reference_ranges.target_gender
+                  AND rr_dia.min_age IS reference_ranges.min_age
+                  AND rr_dia.max_age IS reference_ranges.max_age
+                  AND rr_dia.special_conditions IS reference_ranges.special_conditions
+            )
+            WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Blood Pressure' OR unit_name = 'Systolic');
+        `);
+
+        // Delete Diastolic reference ranges
+        await db.execAsync(`
+            DELETE FROM reference_ranges
+            WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Diastolic');
+        `);
+
+        await db.execAsync('PRAGMA user_version = 3');
     }
 
     return db;

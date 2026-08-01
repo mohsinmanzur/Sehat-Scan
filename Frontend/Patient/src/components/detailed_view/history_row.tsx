@@ -7,9 +7,7 @@ import { HealthMeasurement } from "../../types/types";
 export const HistoryRow: React.FC<{ item: HealthMeasurement; secondaryItem?: HealthMeasurement | null; isLast: boolean; delta?: number, measurements: HealthMeasurement[], color?: string }> = ({ item, secondaryItem, isLast, delta, measurements, color }) => {
     const { theme } = useTheme();
 
-    const isDiastolic = item.measurement_unit?.unit_name?.toLowerCase() === 'diastolic';
-    const displayFirst = isDiastolic && secondaryItem ? secondaryItem.numeric_value : item.numeric_value;
-    const displaySecond = isDiastolic && secondaryItem ? item.numeric_value : secondaryItem?.numeric_value;
+    const displayValue = item.numeric_value_2 != null ? `${item.numeric_value}/${item.numeric_value_2}` : `${item.numeric_value}`;
 
     return (
         <View style={[
@@ -18,7 +16,7 @@ export const HistoryRow: React.FC<{ item: HealthMeasurement; secondaryItem?: Hea
         ]}>
             <View style={styles.logInfo}>
                 <Text style={[styles.logWeight, { color: theme.text }]}>
-                    {displayFirst}{displaySecond !== undefined && displaySecond !== null && `/${displaySecond}`} {item.measurement_unit?.symbol}
+                    {displayValue} {item.measurement_unit?.symbol}
                 </Text>
                 <Text style={[styles.logDate, { color: theme.textLight }]}>{formatFullDateTime(item.created_at)}</Text>
             </View>

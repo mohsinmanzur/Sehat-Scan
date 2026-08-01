@@ -6,14 +6,16 @@ export type MeasurementUnitDTO = {
     color_light?: string;
     color_dark?: string;
     icon_name?: string;
+    has_secondary_value?: boolean;
 };
 
 export type HealthMeasurementDTO = {
     id?: string;
-    document_id?: string;
+    document_id?: string | null;
     patient_id: string;
     unit_id: string;
     numeric_value: number;
+    numeric_value_2?: number;
     special_conditions?: string[];
     created_at?: Date;
     updated_at?: Date;

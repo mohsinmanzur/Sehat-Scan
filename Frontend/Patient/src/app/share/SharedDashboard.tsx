@@ -111,8 +111,8 @@ const SharedDashboardScreen: React.FC = () => {
                         }
                         renderItem={({ item: unit, index }) => {
 
-                            const latest = unit === 'Blood Pressure' ? getLatest(unit, 'Systolic') : getLatest(unit);
-                            const secondaryLatest = unit === 'Blood Pressure' ? getLatest(unit, 'Diastolic') : undefined;
+                            const latest = getLatest(unit);
+                            const secondaryLatest = latest?.numeric_value_2 != null ? { ...latest, numeric_value: latest.numeric_value_2 } : undefined;
                             const iconName = latest?.measurement_unit?.icon_name || 'activity';
 
                             const isDark = mode === 'dark';
@@ -126,11 +126,6 @@ const SharedDashboardScreen: React.FC = () => {
                                 .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()); // oldest to newest
 
                             let itemHistory = fullHistory;
-
-                            if (unit === 'Blood Pressure') {
-                                itemHistory = fullHistory
-                                    .filter(m => m.measurement_unit.unit_name === 'Systolic');
-                            }
 
                             return (
                                 <UpdatedMeasurementCard

@@ -104,8 +104,8 @@ const DashboardScreen: React.FC = () => {
               </View>
             }
             renderItem={({ item: unit, index }) => {
-              const latest = unit === 'Blood Pressure' ? getLatestMeasurementsForUnit(unit, 'Systolic') : getLatestMeasurementsForUnit(unit);
-              const secondaryLatest = unit === 'Blood Pressure' ? getLatestMeasurementsForUnit(unit, 'Diastolic') : undefined;
+              const latest = getLatestMeasurementsForUnit(unit);
+              const secondaryLatest = latest?.numeric_value_2 != null ? { ...latest, numeric_value: latest.numeric_value_2 } : undefined;
               const iconName = latest?.measurement_unit?.icon_name || 'activity';
 
               const isDark = mode === 'dark';
@@ -119,9 +119,6 @@ const DashboardScreen: React.FC = () => {
                 .sort((a, b) => new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime());
 
               let itemHistory = fullHistory;
-              if (unit === 'Blood Pressure') {
-                itemHistory = fullHistory.filter(m => m.measurement_unit?.unit_name === 'Systolic');
-              }
 
               return (
                 <UpdatedMeasurementCard

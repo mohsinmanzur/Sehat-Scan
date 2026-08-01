@@ -43,22 +43,10 @@ const SelectReportsScreen = () => {
     const toggleSelection = (item: HealthMeasurement) => {
         const next = new Set(selectedReports);
         
-        // Find the paired diastolic measurement if this is a systolic measurement
-        let diastolicItem: HealthMeasurement | undefined;
-        if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && item.measurement_unit.unit_name.toLowerCase() === 'systolic') {
-            diastolicItem = measurements.find(m => 
-                m.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && 
-                m.measurement_unit.unit_name.toLowerCase() === 'diastolic' && 
-                m.created_at === item.created_at
-            );
-        }
-
         if (next.has(item.id)) {
             next.delete(item.id);
-            if (diastolicItem) next.delete(diastolicItem.id);
         } else {
             next.add(item.id);
-            if (diastolicItem) next.add(diastolicItem.id);
         }
         setSelectedReports(next);
     };
@@ -85,12 +73,7 @@ const SelectReportsScreen = () => {
                         {units.map(f => {
                             const isActive = activeFilter === f;
                             const filteredMeasurements = measurements.filter(item => {
-                                const matchesFilter = f === 'All' || item.measurement_unit.measurement_group === f;
-                                if (!matchesFilter) return false;
-                                if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure') {
-                                    return item.measurement_unit.unit_name.toLowerCase() === 'systolic';
-                                }
-                                return true;
+                                return f === 'All' || item.measurement_unit.measurement_group === f;
                             });
                             const allFilteredelected = filteredMeasurements.length > 0 && filteredMeasurements.every(item => selectedReports.has(item.id));
 
@@ -101,18 +84,10 @@ const SelectReportsScreen = () => {
                                     if (allFilteredelected) {
                                         filteredMeasurements.forEach(item => {
                                             next.delete(item.id);
-                                            if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && item.measurement_unit.unit_name.toLowerCase() === 'systolic') {
-                                                const diastolicItem = measurements.find(m => m.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && m.measurement_unit.unit_name.toLowerCase() === 'diastolic' && m.created_at === item.created_at);
-                                                if (diastolicItem) next.delete(diastolicItem.id);
-                                            }
                                         });
                                     } else {
                                         filteredMeasurements.forEach(item => {
                                             next.add(item.id);
-                                            if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && item.measurement_unit.unit_name.toLowerCase() === 'systolic') {
-                                                const diastolicItem = measurements.find(m => m.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && m.measurement_unit.unit_name.toLowerCase() === 'diastolic' && m.created_at === item.created_at);
-                                                if (diastolicItem) next.add(diastolicItem.id);
-                                            }
                                         });
                                     }
                                     setSelectedReports(next);
@@ -165,11 +140,7 @@ const SelectReportsScreen = () => {
                     <View style={styles.listContainer}>
                         {measurements.filter(item => {
                             const matchesFilter = activeFilter === 'All' || item.measurement_unit.measurement_group === activeFilter;
-                            if (!matchesFilter) return false;
-                            if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure') {
-                                return item.measurement_unit.unit_name.toLowerCase() === 'systolic';
-                            }
-                            return true;
+                            return matchesFilter;
                         }).map(item => {
                             const isSelected = selectedReports.has(item.id);
                             const isDark = mode === 'dark';
@@ -179,14 +150,7 @@ const SelectReportsScreen = () => {
                             const secondaryColor = primaryColor === theme.primary ? theme.primarySoft : (primaryColor + '22');
                             const iconName = item.measurement_unit?.icon_name || 'activity';
 
-                            let diastolicItem: HealthMeasurement | undefined;
-                            if (item.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' && item.measurement_unit.unit_name.toLowerCase() === 'systolic') {
-                                diastolicItem = measurements.find(m =>
-                                    m.measurement_unit.measurement_group.toLowerCase() === 'blood pressure' &&
-                                    m.measurement_unit.unit_name.toLowerCase() === 'diastolic' &&
-                                    m.created_at === item.created_at
-                                );
-                            }
+                            const measurement2 = item.numeric_value_2;
 
                             return (
                                 <ScalePressable
@@ -203,7 +167,7 @@ const SelectReportsScreen = () => {
                                         <View style={styles.valRow}>
                                             <ThemedText style={styles.itemValue}>
                                                 {item.numeric_value}
-                                                {diastolicItem ? `/${diastolicItem.numeric_value}` : ''}
+                                                {measurement2 != null ? `/${measurement2}` : ''}
                                             </ThemedText>
                                             <ThemedText style={styles.itemUnit}> {item.measurement_unit.symbol}</ThemedText>
                                         </View>
