@@ -30,35 +30,65 @@ export default function DetailedViewScreen() {
         }
     }, [data]);
 
-    const measurement = useMemo(() => {
+    const [selectedUnitName, setSelectedUnitName] = useState<string | null>(null);
+
+    const groupName = useMemo(() => {
         if (initialMeasurements.length > 0) {
-            return initialMeasurements[initialMeasurements.length - 1] as HealthMeasurement;
+            return initialMeasurements[initialMeasurements.length - 1]?.measurement_unit?.measurement_group;
         }
         return null;
     }, [initialMeasurements]);
 
     const { measurements: allPatientMeasurements, isLoading, isSyncing, refresh, reloadFromCache } = useMeasurements(currentPatient?.id);
-    const { ranges: primaryRanges } = useReferenceRanges(measurement?.measurement_unit?.id);
 
-    const [refreshing, setRefreshing] = useState(false);
+    const sourceMeasurements = useMemo(() => {
+        return allPatientMeasurements.length > 0 ? allPatientMeasurements : initialMeasurements;
+    }, [allPatientMeasurements, initialMeasurements]);
+
+    const availableUnits = useMemo(() => {
+        if (!groupName) return [];
+        const units = sourceMeasurements
+            .filter(m => m.measurement_unit?.measurement_group?.toLowerCase() === groupName.toLowerCase())
+            .map(m => m.measurement_unit?.unit_name)
+            .filter(Boolean) as string[];
+        return [...new Set(units)];
+    }, [sourceMeasurements, groupName]);
+
+    useEffect(() => {
+        if (availableUnits.length > 0 && !selectedUnitName) {
+            // Default to the unit of the most recent measurement passed in
+            const defaultUnit = initialMeasurements[initialMeasurements.length - 1]?.measurement_unit?.unit_name;
+            setSelectedUnitName(defaultUnit || availableUnits[0]);
+        }
+    }, [availableUnits, initialMeasurements, selectedUnitName]);
 
     const { allMeasurements, diastolicMeasurements } = useMemo(() => {
-        const sourceMeasurements = allPatientMeasurements.length > 0 ? allPatientMeasurements : initialMeasurements;
-
-        if (!measurement || sourceMeasurements.length === 0) {
+        if (!groupName || !selectedUnitName || sourceMeasurements.length === 0) {
             return { allMeasurements: [], diastolicMeasurements: [] as (HealthMeasurement | null)[] };
         }
 
         let filtered = sourceMeasurements.filter(m =>
-            m.measurement_unit?.measurement_group?.toLowerCase() === measurement.measurement_unit?.measurement_group?.toLowerCase()
+            m.measurement_unit?.measurement_group?.toLowerCase() === groupName.toLowerCase() &&
+            m.measurement_unit?.unit_name === selectedUnitName
         );
 
-        let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m => 
+        let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m =>
             m.numeric_value_2 != null ? { ...m, numeric_value: m.numeric_value_2 } : null
         );
 
         return { allMeasurements: filtered, diastolicMeasurements: alignedDiastolic };
-    }, [allPatientMeasurements, measurement]);
+    }, [sourceMeasurements, groupName, selectedUnitName]);
+
+    const measurement = useMemo(() => {
+        if (allMeasurements.length > 0) {
+            return allMeasurements[allMeasurements.length - 1] as HealthMeasurement; // Since it's oldest-first, the last one is the latest
+        }
+        return null;
+    }, [allMeasurements]);
+
+    const { ranges: primaryRanges } = useReferenceRanges(measurement?.measurement_unit?.id);
+
+    const [refreshing, setRefreshing] = useState(false);
 
     const bestReferenceRange: ReferenceRange | null = useMemo(
         () => measurement ? findBestReferenceRange(measurement, primaryRanges, currentPatient ?? undefined) : null,
@@ -76,7 +106,7 @@ export default function DetailedViewScreen() {
     // Reload from SQLite each time the screen comes into focus (e.g. returning from ItemDetail after a delete)
     useFocusEffect(
         useCallback(() => {
-            reloadFromCache().catch(() => {});
+            reloadFromCache().catch(() => { });
         }, [reloadFromCache])
     );
 
@@ -118,7 +148,7 @@ export default function DetailedViewScreen() {
 
     return (
         <ThemedView safe style={{ backgroundColor: theme.backgroundDark }}>
-            <Header title={`${measurement?.measurement_unit?.measurement_group} History`} />
+            <Header title={`${groupName || 'Measurements'} History`} />
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={styles.scrollContent}
@@ -134,14 +164,44 @@ export default function DetailedViewScreen() {
                 }
             >
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+                    {availableUnits.length > 1 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}>
+                            {availableUnits.map(unit => {
+                                const isSelected = unit === selectedUnitName;
+                                return (
+                                    <ScalePressable
+                                        key={unit}
+                                        onPress={() => setSelectedUnitName(unit)}
+                                        style={{
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 8,
+                                            borderRadius: 20,
+                                            backgroundColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                            borderWidth: 1,
+                                            borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                        }}
+                                    >
+                                        <Text style={{
+                                            color: isSelected ? '#fff' : theme.text,
+                                            fontWeight: isSelected ? '700' : '500',
+                                            fontSize: 14
+                                        }}>
+                                            {unit}
+                                        </Text>
+                                    </ScalePressable>
+                                );
+                            })}
+                        </ScrollView>
+                    )}
+
                     <Text style={[styles.currentLabel, { color: theme.textLight }]}>
                         CURRENT {measurement?.measurement_unit?.measurement_group?.toUpperCase()}
                     </Text>
                     {showLoading ? (
-                        <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14 }} />
+                        <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14, marginLeft: 20 }} />
                     ) : (() => {
-                        const primaryVal = allMeasurements[0]?.numeric_value;
-                        const measurement2 = diastolicMeasurements[0]?.numeric_value;
+                        const primaryVal = measurement?.numeric_value;
+                        const measurement2 = measurement?.numeric_value_2;
                         return (
                             <View style={styles.currentRow}>
                                 <Text style={[styles.currentValue, { color: theme.text }]}>{primaryVal}</Text>

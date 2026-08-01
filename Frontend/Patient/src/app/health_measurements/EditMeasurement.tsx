@@ -14,18 +14,19 @@ import { useCurrentPatient } from '@context/PatientContext';
 import { useOfflineMutation } from '../../hooks/useOfflineMutation';
 import { useNetwork } from '../../context/NetworkContext';
 import { Snackbar } from 'react-native-snackbar';
+import { useDatabase } from '../../context/DatabaseContext';
 
-export default function EditMeasurement() {
+export default function EditMeasurementScreen() {
 
     const router = useRouter();
-    const { data, data2 } = useLocalSearchParams<{ data: string, data2?: string }>();
+    const { data } = useLocalSearchParams<{ data: string }>();
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
+    const { db } = useDatabase();
     const { isOnline } = useNetwork();
     const { updateMeasurement } = useOfflineMutation(currentPatient?.id);
 
     const [measurement, setMeasurement] = useState<HealthMeasurement | null>(null);
-    const [secondaryMeasurement, setSecondaryMeasurement] = useState<HealthMeasurement | null>(null);
 
     const [value, setValue] = useState<string>('');
     const [secondaryValue, setSecondaryValue] = useState<string>('');
@@ -45,20 +46,18 @@ export default function EditMeasurement() {
             const parsed = JSON.parse(data) as HealthMeasurement;
             setMeasurement(parsed);
             setValue(parsed.numeric_value.toString());
+            if (parsed.numeric_value_2 != null) {
+                setSecondaryValue(parsed.numeric_value_2.toString());
+            }
             if (parsed.created_at) {
                 setSelectedDate(new Date(parsed.created_at));
             }
         }
-        if (data2) {
-            const parsed2 = JSON.parse(data2) as HealthMeasurement;
-            setSecondaryMeasurement(parsed2);
-            setSecondaryValue(parsed2.numeric_value.toString());
-        }
         setisLoading(false);
-    }, [data, data2]);
+    }, [data]);
 
     const handleSave = async () => {
-        if (!measurement || (secondaryMeasurement && !secondaryValue)) {
+        if (!measurement || ((measurement.measurement_unit.has_secondary_value || measurement.measurement_unit.measurement_group === 'Blood Pressure') && !secondaryValue)) {
             setShowValueError(true);
             errorShakeAnimation(valueShakeAnimation);
             return;
@@ -70,15 +69,9 @@ export default function EditMeasurement() {
         try {
             await updateMeasurement(measurement.id!, {
                 numeric_value: parseFloat(value),
+                numeric_value_2: (measurement.measurement_unit.has_secondary_value || measurement.measurement_unit.measurement_group === 'Blood Pressure') ? parseFloat(secondaryValue) : undefined,
                 created_at: selectedDate,
             });
-
-            if (secondaryMeasurement) {
-                await updateMeasurement(secondaryMeasurement.id!, {
-                    numeric_value: parseFloat(secondaryValue),
-                    created_at: selectedDate,
-                });
-            }
 
             if (!isOnline) {
                 Snackbar.show({
@@ -132,7 +125,7 @@ export default function EditMeasurement() {
                                 onChangeText={(text) => {
                                     setValue(text);
                                     setShowValueError(false);
-                                    if (text.length === 3 && secondaryMeasurement) {
+                                    if (text.length === 3 && measurement?.measurement_unit?.has_secondary_value) {
                                         value2Ref.current?.focus();
                                     }
                                 }}
@@ -141,9 +134,9 @@ export default function EditMeasurement() {
                                 placeholder='0.00'
                                 maxLength={6}
                                 cursorColor={theme.primary}
-                                returnKeyType={secondaryMeasurement ? "next" : "done"}
+                                returnKeyType={measurement?.measurement_unit?.has_secondary_value ? "next" : "done"}
                                 onSubmitEditing={() => {
-                                    if (secondaryMeasurement) {
+                                    if (measurement?.measurement_unit?.has_secondary_value) {
                                         value2Ref.current?.focus();
                                     }
                                 }}
@@ -151,7 +144,7 @@ export default function EditMeasurement() {
                         </Animated.View>
                     </View>
 
-                    {secondaryMeasurement && (
+                    {measurement?.measurement_unit?.has_secondary_value && (
                         <>
                             <ThemedText style={{ color: theme.textGray, fontSize: 50, marginBottom: 15 }}>/</ThemedText>
 

@@ -29,12 +29,8 @@ export default function HealthMeasurementDetailScreen() {
     const isGuestMode = guestMode.toLowerCase() === "true";
 
     let measurement: HealthMeasurement | null = null;
-    let secondaryMeasurement: HealthMeasurement | null = null;
     try {
         measurement = JSON.parse(data);
-        if (data2) {
-            secondaryMeasurement = JSON.parse(data2);
-        }
     } catch {
         // invalid params
     }
@@ -99,16 +95,13 @@ export default function HealthMeasurementDetailScreen() {
 
     const handleDelete = async () => {
         await deleteMeasurement(measurement!.id!);
-        if (secondaryMeasurement) {
-            await deleteMeasurement(secondaryMeasurement.id!);
-        }
         router.back();
     }
 
     const handleEdit = () => {
         router.push({
             pathname: '/health_measurements/EditMeasurement',
-            params: { data: JSON.stringify(measurement), data2: secondaryMeasurement ? JSON.stringify(secondaryMeasurement) : undefined }
+            params: { data: JSON.stringify(measurement) }
         });
     }
 
@@ -145,7 +138,11 @@ export default function HealthMeasurementDetailScreen() {
 
                 <View style={styles.detailCard}>
                     <Text style={[styles.detailLabel, { color: theme.textGray, marginTop: 10 }]}>Measurement Value</Text>
-                    <Text style={[styles.valueText, { color: theme.text }]}>{secondaryMeasurement ? `${measurement.numeric_value}/${secondaryMeasurement.numeric_value} ${secondaryMeasurement.measurement_unit.symbol}` : displayValue}</Text>
+                    <Text style={[styles.valueText, { color: theme.text }]}>
+                        {measurement.numeric_value_2 != null 
+                            ? `${measurement.numeric_value}/${measurement.numeric_value_2} ${measurement.measurement_unit.symbol}` 
+                            : displayValue}
+                    </Text>
                 </View>
 
                 <View style={styles.detailCard}>

@@ -1,6 +1,6 @@
 import { useTheme } from '@context/ThemeContext';
 import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Animated, RefreshControl } from 'react-native';
 import { ThemedText, ThemedView } from 'src/components';
 import backend from 'src/services/Backend/backend.service';
@@ -26,14 +26,45 @@ export default function DetailedViewScreen() {
     const [bestReferenceRange, setBestReferenceRange] = useState<ReferenceRange | null>();
 
 
-    const processMeasurements = useCallback(async (parsedData: HealthMeasurement[], showLoading = true) => {
-        if (showLoading) setIsLoading(true);
+    const [selectedUnitName, setSelectedUnitName] = useState<string | null>(null);
+
+    const sourceMeasurements = useMemo(() => {
+        if (!data) return [];
         try {
-            let filtered = parsedData.filter((m) =>
-                m.measurement_unit?.measurement_group?.toLowerCase() === parsedData?.[0]?.measurement_unit?.measurement_group?.toLowerCase()
+            const parsed = JSON.parse(data);
+            return parsed.sort((a: HealthMeasurement, b: HealthMeasurement) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        } catch {
+            return [];
+        }
+    }, [data]);
+
+    const groupName = sourceMeasurements[0]?.measurement_unit?.measurement_group;
+
+    const availableUnits = useMemo(() => {
+        if (!groupName) return [];
+        const units = sourceMeasurements
+            .filter((m: HealthMeasurement) => m.measurement_unit?.measurement_group?.toLowerCase() === groupName.toLowerCase())
+            .map((m: HealthMeasurement) => m.measurement_unit?.unit_name)
+            .filter(Boolean) as string[];
+        return [...new Set(units)];
+    }, [sourceMeasurements, groupName]);
+
+    useEffect(() => {
+        if (availableUnits.length > 0 && !selectedUnitName) {
+            setSelectedUnitName(sourceMeasurements[0]?.measurement_unit?.unit_name || availableUnits[0]);
+        }
+    }, [availableUnits, sourceMeasurements, selectedUnitName]);
+
+    const processMeasurements = useCallback(async () => {
+        if (!groupName || !selectedUnitName || sourceMeasurements.length === 0) return;
+        setIsLoading(true);
+        try {
+            let filtered = sourceMeasurements.filter((m: HealthMeasurement) =>
+                m.measurement_unit?.measurement_group?.toLowerCase() === groupName.toLowerCase() &&
+                m.measurement_unit?.unit_name === selectedUnitName
             );
 
-            let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m => 
+            let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map((m: HealthMeasurement) =>
                 m.numeric_value_2 != null ? { ...m, numeric_value: m.numeric_value_2 } : null
             );
 
@@ -53,19 +84,11 @@ export default function DetailedViewScreen() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [sourceMeasurements, groupName, selectedUnitName]);
 
     useEffect(() => {
-        if (!data) return;
-        try {
-            const parsed = JSON.parse(data);
-            // Explicitly sort newest-to-oldest to guarantee the correct order
-            const newestToOldest = parsed.sort((a: HealthMeasurement, b: HealthMeasurement) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            processMeasurements(newestToOldest);
-        } catch (e) {
-            console.error("Failed to parse measurement data", e);
-        }
-    }, [processMeasurements, data]);
+        processMeasurements();
+    }, [processMeasurements]);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(24)).current;
@@ -96,7 +119,7 @@ export default function DetailedViewScreen() {
     return (
         <ThemedView safe style={{ backgroundColor: theme.backgroundDark }}>
             {/* Header */}
-            <Header title={`${allMeasurements?.[0]?.measurement_unit?.measurement_group} History`} />
+            <Header title={`${groupName || 'Measurements'} History`} />
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={styles.scrollContent}
@@ -104,12 +127,43 @@ export default function DetailedViewScreen() {
             >
                 {/* ── Current Weight ── */}
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-                    <Text style={[styles.currentLabel, { color: theme.textLight }]}>CURRENT {allMeasurements?.[0]?.measurement_unit?.measurement_group?.toUpperCase()}</Text>
+                    {availableUnits.length > 1 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}>
+                            {availableUnits.map(unit => {
+                                const isSelected = unit === selectedUnitName;
+                                return (
+                                    <ScalePressable
+                                        key={unit}
+                                        onPress={() => setSelectedUnitName(unit)}
+                                        style={{
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 8,
+                                            borderRadius: 20,
+                                            backgroundColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                            borderWidth: 1,
+                                            borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                        }}
+                                    >
+                                        <Text style={{
+                                            color: isSelected ? '#fff' : theme.text,
+                                            fontWeight: isSelected ? '700' : '500',
+                                            fontSize: 14
+                                        }}>
+                                            {unit}
+                                        </Text>
+                                    </ScalePressable>
+                                );
+                            })}
+                        </ScrollView>
+                    )}
+
+                    <Text style={[styles.currentLabel, { color: theme.textLight }]}>CURRENT {groupName?.toUpperCase()}</Text>
                     {isLoading ? (
-                        <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14 }} />
+                        <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14, marginLeft: 20 }} />
                     ) : (() => {
-                        const primaryVal = allMeasurements[0]?.numeric_value;
-                        const measurement2 = diastolicMeasurements[0]?.numeric_value;
+                        const measurement = allMeasurements.length > 0 ? allMeasurements[allMeasurements.length - 1] as HealthMeasurement : null;
+                        const primaryVal = measurement?.numeric_value;
+                        const measurement2 = measurement?.numeric_value_2;
 
                         return (
                             <View style={styles.currentRow}>

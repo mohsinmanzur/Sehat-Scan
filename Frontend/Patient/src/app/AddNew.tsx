@@ -116,7 +116,7 @@ export default function AddNewMeasurement() {
             errorShakeAnimation(valueShakeAnimation);
             return;
         }
-        if (selectedUnit?.has_secondary_value && !value2) {
+        if ((selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') && !value2) {
             setShowValueError(true);
             errorShakeAnimation(valueShakeAnimation);
             return;
@@ -171,7 +171,7 @@ export default function AddNewMeasurement() {
                 document_id: documentId,
                 unit_id: selectedUnit?.id,
                 numeric_value: parseFloat(value),
-                numeric_value_2: selectedUnit?.has_secondary_value ? parseFloat(value2) : undefined,
+                numeric_value_2: (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? parseFloat(value2) : undefined,
                 created_at: selectedDate,
             });
 
@@ -242,26 +242,26 @@ export default function AddNewMeasurement() {
                                 onChangeText={(text) => {
                                     setValue(text);
                                     setShowValueError(false);
-                                    if (text.length === 3 && selectedUnit?.has_secondary_value) {
+                                    if (text.length === 3 && (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure')) {
                                         value2Ref.current?.focus();
                                     }
                                 }}
                                 keyboardType="phone-pad"
-                                returnKeyType={selectedUnit?.has_secondary_value ? "next" : "done"}
+                                returnKeyType={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? "next" : "done"}
                                 onSubmitEditing={() => {
-                                    if (selectedUnit?.has_secondary_value) {
+                                    if (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') {
                                         value2Ref.current?.focus();
                                     }
                                 }}
                                 placeholderTextColor={theme.textVeryLight}
-                                placeholder={selectedUnit?.has_secondary_value ? '120' : '0'}
+                                placeholder={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? '120' : '0'}
                                 maxLength={3}
                                 cursorColor={theme.primary}
                             />
                         </Animated.View>
                     </View>
 
-                    {selectedUnit?.has_secondary_value &&
+                    {(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') &&
                         <>
                             <ThemedText style={{ color: theme.textGray, fontSize: 50, marginBottom: 15 }}>/</ThemedText>
 

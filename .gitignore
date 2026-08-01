@@ -1,81 +1,55 @@
-# compiled output
-/Backend/dist
-/Backend/node_modules
-/Backend/build
+# Dependencies
+node_modules/
 
-# ML / OCR workspace — commit source, exclude weights/venv
-/ml/Medical-Prescription-OCR/model/
-/ml/Medical-Prescription-OCR/.venv/
-/ml/Medical-Prescription-OCR/__pycache__/
-/ml/Medical-Prescription-OCR/.ipynb_checkpoints/
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+venv/
+env/
 
-# Claude Code user-private settings
-/.claude/
+# Environment variables
+.env
 
-/Frontend/Patient/node_modules
-/Frontend/Patient/.expo
-/Frontend/Patient/dist
-/Frontend/Patient/build
+# ML model files - too large for GitHub
+ml/Medical-Prescription-OCR/model/
+ml/Medical-Prescription-OCR/models/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.whl
 
-/Frontend/Doctor/node_modules
-/Frontend/Doctor/.expo
-/Frontend/Doctor/dist
-/Frontend/Doctor/build
+# ML dataset files - hosted on Hugging Face
+ml/Medical-Prescription-OCR/dataset_splits/
+ml/Medical-Prescription-OCR/data/
 
-# Logs
-/Backend/logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# ML temporary / one-off scripts
+ml/Medical-Prescription-OCR/temp/
+ml/Medical-Prescription-OCR/temp_upload/
+ml/Medical-Prescription-OCR/DATASET_README.md
+ml/Medical-Prescription-OCR/medical_prescription_dataset.py
+ml/Medical-Prescription-OCR/upload_model.py
+ml/Medical-Prescription-OCR/README_hf.md
+ml/Medical-Prescription-OCR/MODEL_README_UPDATED.md
+ml/Medical-Prescription-OCR/dataset_info.json
 
-# OS
+# Expo
+Frontend/Patient/.expo/
+
+# OS files
 .DS_Store
+Thumbs.db
 
-# Tests
-/Backend/coverage
-/Backend/.nyc_output
+# IDE
+.vscode/
+.idea/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Temporary files
+*.tmp
+*.bak
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# dotenv environment variable files
-/Backend/.env
-/Backend/.env.development.local
-/Backend/.env.test.local
-/Backend/.env.production.local
-/Backend/.env.local
-
-/Frontend/Patient/.env
-/Frontend/Patient/.env.development.local
-/Frontend/Patient/.env.test.local
-/Frontend/Patient/.env.production.local
-/Frontend/Patient/.env.local
-
-# temp directory
-/Backend/.temp
-/Backend/.tmp
-
-# Runtime data
-/Backend/pids
-*.pid
-*.seed
-*.pid.lock
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+# Build output
+dist/
+build/
