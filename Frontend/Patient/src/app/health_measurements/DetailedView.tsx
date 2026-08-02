@@ -66,7 +66,7 @@ export default function DetailedViewScreen() {
         let filtered = sourceMeasurements.filter(m =>
             m.measurement_unit?.measurement_group?.toLowerCase() === groupName.toLowerCase() &&
             m.measurement_unit?.unit_name === selectedUnitName
-        );
+        ).sort((a, b) => new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime());
 
         let alignedDiastolic: (HealthMeasurement | null)[] = filtered.map(m =>
             m.numeric_value_2 != null ? { ...m, numeric_value: m.numeric_value_2 } : null
@@ -77,7 +77,7 @@ export default function DetailedViewScreen() {
 
     const measurement = useMemo(() => {
         if (allMeasurements.length > 0) {
-            return allMeasurements[allMeasurements.length - 1] as HealthMeasurement; // Since it's oldest-first, the last one is the latest
+            return allMeasurements[0] as HealthMeasurement;
         }
         return null;
     }, [allMeasurements]);
@@ -128,10 +128,10 @@ export default function DetailedViewScreen() {
     const stats = useMemo(() => {
         if (!allMeasurements || allMeasurements.length < 2) return null;
         const latest = allMeasurements[0];
-        const oldest = allMeasurements[allMeasurements.length - 1];
-        if (!latest || !oldest) return null;
-        const diff = latest.numeric_value - oldest.numeric_value;
-        const timeRange = getRelativeTimeRange(oldest.created_at, latest.created_at);
+        const previous = allMeasurements[1];
+        if (!latest || !previous) return null;
+        const diff = latest.numeric_value - previous.numeric_value;
+        const timeRange = getRelativeTimeRange(previous.created_at, latest.created_at);
         return {
             diff: diff.toFixed(1),
             timeRange,
@@ -225,7 +225,7 @@ export default function DetailedViewScreen() {
                     )}
                 </Animated.View>
 
-                {availableUnits.length > 1 && (
+                {(availableUnits.length > 1 || (measurement?.measurement_unit?.unit_name?.toLowerCase() !== groupName?.toLowerCase())) && (
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ gap: 15 }}>
                         {availableUnits.map(unit => {
                             const isSelected = unit === selectedUnitName;

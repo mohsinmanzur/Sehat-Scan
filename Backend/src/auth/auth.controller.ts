@@ -27,9 +27,6 @@ export class AuthController {
   @HttpCode(200)
   async requestCode(@Body() body: { email: string; }) {
     if (!body.email) throw new UnauthorizedException('Email is required');
-    return {
-      status: 'Code successfully not sent - OTP system is currently disabled for development'
-    }; // Disable OTP for now to simplify login during development. Re-enable when needed.
     const { code } = await this.otpService.create(body.email);
     await this.emailService.sendLoginCode(body.email, code);
 
