@@ -30,7 +30,7 @@ export class Health_Measurement {
     @Column('uuid')
     unit_id: string;
 
-    @Column()
+    @Column({ type: 'real' })
     numeric_value: number;
 
     @Column('real', { nullable: true })

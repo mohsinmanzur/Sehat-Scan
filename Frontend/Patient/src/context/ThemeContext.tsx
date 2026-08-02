@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, useMemo } from 'react';
+import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { setStatusBarStyle } from 'expo-status-bar';
 import { Colors } from '../constants/colors';
 
 // Define the shape of the theme object
@@ -18,10 +19,15 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
   const systemScheme = useColorScheme();
   const [mode, setMode] = useState<'light' | 'dark' | 'system'>('system');
 
+  const currentMode = mode === 'system' ? systemScheme : mode;
+
   const theme = useMemo(() => {
-    const currentMode = mode === 'system' ? systemScheme : mode;
     return currentMode === 'dark' ? Colors.dark : Colors.light;
-  }, [mode, systemScheme]);
+  }, [currentMode]);
+
+  useEffect(() => {
+    setStatusBarStyle(currentMode === 'dark' ? 'light' : 'dark', true);
+  }, [currentMode]);
 
   // Create a memoized JSON string of the current theme
   const themeJson = useMemo(() => JSON.stringify(theme, null, 2), [theme]);

@@ -29,14 +29,18 @@ export const UpdatedMeasurementCard: React.FC<UpdatedMeasurementCardProps> = ({ 
     // Default to an initial guess, then update dynamically when the view renders
     const [chartWidth, setChartWidth] = useState(60);
 
+    // Filter history to only include measurements with the same unit as the current item,
+    // so the chart doesn't mix values from different measurement units within the same group.
+    const filteredHistory = itemHistory?.filter(h => h.unit_id === item.unit_id) || [];
+
     let chartData = [];
 
-    if (!itemHistory || itemHistory.length === 0) {
+    if (filteredHistory.length === 0) {
         chartData = [{ timestamp: 0, value: 0 }, { timestamp: 1, value: 0 }];
-    } else if (itemHistory.length === 1) {
-        chartData = [{ timestamp: 0, value: itemHistory[0].numeric_value }, { timestamp: 1, value: itemHistory[0].numeric_value }];
+    } else if (filteredHistory.length === 1) {
+        chartData = [{ timestamp: 0, value: filteredHistory[0].numeric_value }, { timestamp: 1, value: filteredHistory[0].numeric_value }];
     } else {
-        chartData = itemHistory.map((val, index) => ({ timestamp: index, value: val.numeric_value }));
+        chartData = filteredHistory.map((val, index) => ({ timestamp: index, value: val.numeric_value }));
     }
 
     return (

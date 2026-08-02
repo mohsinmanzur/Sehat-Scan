@@ -40,7 +40,7 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
             synced_at TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS reference_ranges (
+        CREATE TABLE IF NOT EXISTS reference_range (
             id TEXT PRIMARY KEY,
             unit_id TEXT NOT NULL,
             min_value REAL NOT NULL,
@@ -112,7 +112,7 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
         );
 
         CREATE INDEX IF NOT EXISTS idx_hm_patient ON health_measurements(patient_id);
-        CREATE INDEX IF NOT EXISTS idx_rr_unit ON reference_ranges(unit_id);
+        CREATE INDEX IF NOT EXISTS idx_rr_unit ON reference_range(unit_id);
         CREATE INDEX IF NOT EXISTS idx_pm_created ON pending_mutations(created_at);
         CREATE INDEX IF NOT EXISTS idx_docs_patient ON medical_documents(patient_id);
     `);
@@ -181,48 +181,72 @@ export async function openAndInitDatabase(): Promise<SQLite.SQLiteDatabase> {
 
     if (currentVersion < 3) {
         // v3: add min_value_2 and max_value_2 to reference_ranges, merge Diastolic ranges
-        const rrCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(reference_ranges)');
+        const oldExists = (await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='reference_ranges'")).length > 0;
+        const tableName = oldExists ? 'reference_ranges' : 'reference_range';
+
+        const rrCols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${tableName})`);
         const colNames = rrCols.map(c => c.name);
         if (!colNames.includes('min_value_2')) {
-            await db.execAsync('ALTER TABLE reference_ranges ADD COLUMN min_value_2 REAL DEFAULT 0;');
+            await db.execAsync(`ALTER TABLE ${tableName} ADD COLUMN min_value_2 REAL;`);
         }
         if (!colNames.includes('max_value_2')) {
-            await db.execAsync('ALTER TABLE reference_ranges ADD COLUMN max_value_2 REAL DEFAULT 0;');
+            await db.execAsync(`ALTER TABLE ${tableName} ADD COLUMN max_value_2 REAL;`);
         }
 
         // Merge existing Diastolic reference ranges into Systolic (now Blood Pressure) ranges locally
         await db.execAsync(`
-            UPDATE reference_ranges
+            UPDATE ${tableName}
             SET min_value_2 = (
                 SELECT rr_dia.min_value 
-                FROM reference_ranges rr_dia
+                FROM ${tableName} rr_dia
                 JOIN measurement_units u_dia ON rr_dia.unit_id = u_dia.id
                 WHERE u_dia.unit_name = 'Diastolic'
-                  AND rr_dia.target_gender IS reference_ranges.target_gender
-                  AND rr_dia.min_age IS reference_ranges.min_age
-                  AND rr_dia.max_age IS reference_ranges.max_age
-                  AND rr_dia.special_conditions IS reference_ranges.special_conditions
+                  AND rr_dia.target_gender IS ${tableName}.target_gender
+                  AND rr_dia.min_age IS ${tableName}.min_age
+                  AND rr_dia.max_age IS ${tableName}.max_age
+                  AND rr_dia.special_conditions IS ${tableName}.special_conditions
             ),
             max_value_2 = (
                 SELECT rr_dia.max_value 
-                FROM reference_ranges rr_dia
+                FROM ${tableName} rr_dia
                 JOIN measurement_units u_dia ON rr_dia.unit_id = u_dia.id
                 WHERE u_dia.unit_name = 'Diastolic'
-                  AND rr_dia.target_gender IS reference_ranges.target_gender
-                  AND rr_dia.min_age IS reference_ranges.min_age
-                  AND rr_dia.max_age IS reference_ranges.max_age
-                  AND rr_dia.special_conditions IS reference_ranges.special_conditions
+                  AND rr_dia.target_gender IS ${tableName}.target_gender
+                  AND rr_dia.min_age IS ${tableName}.min_age
+                  AND rr_dia.max_age IS ${tableName}.max_age
+                  AND rr_dia.special_conditions IS ${tableName}.special_conditions
             )
             WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Blood Pressure' OR unit_name = 'Systolic');
         `);
 
         // Delete Diastolic reference ranges
         await db.execAsync(`
-            DELETE FROM reference_ranges
+            DELETE FROM ${tableName}
             WHERE unit_id IN (SELECT id FROM measurement_units WHERE unit_name = 'Diastolic');
         `);
 
         await db.execAsync('PRAGMA user_version = 3');
+    }
+
+    if (currentVersion < 4) {
+        // v4: Rename table to reference_range and cleanup data
+        const oldExists = (await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='reference_ranges'")).length > 0;
+        if (oldExists) {
+            await db.execAsync(`
+                INSERT OR IGNORE INTO reference_range 
+                SELECT * FROM reference_ranges;
+                DROP TABLE reference_ranges;
+            `);
+        }
+
+        await db.execAsync(`
+            UPDATE reference_range
+            SET 
+                min_value_2 = CASE WHEN min_value_2 = '0' OR min_value_2 = 0 THEN NULL ELSE CAST(min_value_2 AS REAL) END,
+                max_value_2 = CASE WHEN max_value_2 = '0' OR max_value_2 = 0 THEN NULL ELSE CAST(max_value_2 AS REAL) END;
+        `);
+
+        await db.execAsync('PRAGMA user_version = 4');
     }
 
     return db;
@@ -232,7 +256,7 @@ export async function clearAllData(db: SQLite.SQLiteDatabase): Promise<void> {
     // Delete order respects FK constraints:
     // pending_mutations has no FKs; deleting patients cascades to
     // health_measurements, medical_documents, access_grants;
-    // deleting measurement_units cascades to reference_ranges.
+    // deleting measurement_units cascades to reference_range.
     await db.execAsync(`
         DELETE FROM pending_mutations;
         DELETE FROM patients;

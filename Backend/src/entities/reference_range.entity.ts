@@ -13,16 +13,16 @@ export class Reference_Range {
     @Column('uuid')
     unit_id: string;
 
-    @Column({ default: 0 })
+    @Column({ type: 'real', default: 0 })
     min_value: number;
 
-    @Column({ default: 0 })
+    @Column({ type: 'real', default: 0 })
     max_value: number;
 
-    @Column({ default: 0, nullable: true })
+    @Column({ type: 'real', nullable: true })
     min_value_2: number;
 
-    @Column({ default: 0, nullable: true })
+    @Column({ type: 'real', nullable: true })
     max_value_2: number;
 
     @Column({

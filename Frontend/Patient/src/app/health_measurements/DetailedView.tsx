@@ -30,7 +30,9 @@ export default function DetailedViewScreen() {
         }
     }, [data]);
 
-    const [selectedUnitName, setSelectedUnitName] = useState<string | null>(null);
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(
+        () => initialMeasurements[initialMeasurements.length - 1]?.measurement_unit?.unit_name ?? ''
+    );
 
     const groupName = useMemo(() => {
         if (initialMeasurements.length > 0) {
@@ -54,13 +56,7 @@ export default function DetailedViewScreen() {
         return [...new Set(units)];
     }, [sourceMeasurements, groupName]);
 
-    useEffect(() => {
-        if (availableUnits.length > 0 && !selectedUnitName) {
-            // Default to the unit of the most recent measurement passed in
-            const defaultUnit = initialMeasurements[initialMeasurements.length - 1]?.measurement_unit?.unit_name;
-            setSelectedUnitName(defaultUnit || availableUnits[0]);
-        }
-    }, [availableUnits, initialMeasurements, selectedUnitName]);
+
 
     const { allMeasurements, diastolicMeasurements } = useMemo(() => {
         if (!groupName || !selectedUnitName || sourceMeasurements.length === 0) {
@@ -94,8 +90,6 @@ export default function DetailedViewScreen() {
         () => measurement ? findBestReferenceRange(measurement, primaryRanges, currentPatient ?? undefined) : null,
         [measurement, primaryRanges, currentPatient]
     );
-
-
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -164,38 +158,8 @@ export default function DetailedViewScreen() {
                 }
             >
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-                    {availableUnits.length > 1 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}>
-                            {availableUnits.map(unit => {
-                                const isSelected = unit === selectedUnitName;
-                                return (
-                                    <ScalePressable
-                                        key={unit}
-                                        onPress={() => setSelectedUnitName(unit)}
-                                        style={{
-                                            paddingHorizontal: 16,
-                                            paddingVertical: 8,
-                                            borderRadius: 20,
-                                            backgroundColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
-                                            borderWidth: 1,
-                                            borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
-                                        }}
-                                    >
-                                        <Text style={{
-                                            color: isSelected ? '#fff' : theme.text,
-                                            fontWeight: isSelected ? '700' : '500',
-                                            fontSize: 14
-                                        }}>
-                                            {unit}
-                                        </Text>
-                                    </ScalePressable>
-                                );
-                            })}
-                        </ScrollView>
-                    )}
-
                     <Text style={[styles.currentLabel, { color: theme.textLight }]}>
-                        CURRENT {measurement?.measurement_unit?.measurement_group?.toUpperCase()}
+                        CURRENT {selectedUnitName.toUpperCase()}
                     </Text>
                     {showLoading ? (
                         <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14, marginLeft: 20 }} />
@@ -216,7 +180,7 @@ export default function DetailedViewScreen() {
                     {showLoading ? (
                         <GhostElement style={{ height: 38, width: 180, borderRadius: 24, marginBottom: 24 }} />
                     ) : (
-                        stats && (
+                        measurement && (
                             <View style={[styles.statsPill, { backgroundColor: theme.backgroundLight }]}>
                                 <Text>
                                     <ThemedText style={{ fontFamily: 'PublicSans_700Bold' }}>Target: </ThemedText>
@@ -260,6 +224,36 @@ export default function DetailedViewScreen() {
                         <WeightChart measurements={allMeasurements} secondaryMeasurements={diastolicMeasurements} color={primaryColor} />
                     )}
                 </Animated.View>
+
+                {availableUnits.length > 1 && (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ gap: 15 }}>
+                        {availableUnits.map(unit => {
+                            const isSelected = unit === selectedUnitName;
+                            return (
+                                <ScalePressable
+                                    key={unit}
+                                    onPress={() => setSelectedUnitName(unit)}
+                                    style={{
+                                        paddingHorizontal: 16,
+                                        paddingVertical: 6,
+                                        borderRadius: 20,
+                                        backgroundColor: theme.backgroundLight,
+                                        borderWidth: 1,
+                                        borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                    }}
+                                >
+                                    <ThemedText style={{
+                                        color: isSelected ? theme.text : theme.textGray,
+                                        fontWeight: isSelected ? '700' : '500',
+                                        fontSize: 14
+                                    }}>
+                                        {unit}
+                                    </ThemedText>
+                                </ScalePressable>
+                            );
+                        })}
+                    </ScrollView>
+                )}
 
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
                     <View style={styles.sectionHeader}>

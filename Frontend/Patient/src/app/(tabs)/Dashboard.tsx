@@ -21,7 +21,7 @@ const DashboardScreen: React.FC = () => {
 
   const { measurements, isLoading, isSyncing, refresh } = useMeasurements(currentPatient?.id);
 
-  const units = [...new Set(measurements.map((m: HealthMeasurement) => m.measurement_unit?.measurement_group).filter(Boolean))].reverse() as string[];
+  const units = [...new Set(measurements.map((m: HealthMeasurement) => m.measurement_unit?.measurement_group).filter(Boolean))].sort() as string[];
 
   const getLatestMeasurementsForUnit = (keyword: string, unit_name?: string) => {
     return measurements
@@ -55,13 +55,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <ThemedView safe style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
-      {/*<OfflineBanner />
-      <DeviceOnlyBanner isDeviceOnly={isDeviceOnly} /> */}
       <View style={styles.mainContainer}>
-        <Header name={patientName} />
-
-        <View style={[styles.sectionHeader, { marginTop: 10, marginHorizontal: 7 }]} />
-
         {isLoading ? (
           <FlatList
             style={styles.scrollView}
@@ -71,6 +65,9 @@ const DashboardScreen: React.FC = () => {
             keyExtractor={(item) => item.toString()}
             numColumns={2}
             columnWrapperStyle={styles.cardWrapper}
+            ListHeaderComponent={
+              <Header name={patientName} />
+            }
             renderItem={() => <SkeletonCard />}
           />
         ) : (
@@ -82,6 +79,9 @@ const DashboardScreen: React.FC = () => {
             keyExtractor={(item, index) => index.toString()}
             numColumns={2}
             columnWrapperStyle={styles.cardWrapper}
+            ListHeaderComponent={
+              <Header name={patientName} />
+            }
             refreshControl={
               <RefreshControl
                 refreshing={refreshing || isSyncing}
@@ -148,18 +148,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   scrollView: {
-    marginBottom: 80,
     flex: 1,
   },
   scrollContent: {
     paddingBottom: 20,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
   },
   cardWrapper: {
     marginHorizontal: 15,

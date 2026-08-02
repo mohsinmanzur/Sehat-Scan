@@ -224,9 +224,9 @@ export default function AddNewMeasurement() {
                 {/* ── Measurement Type ── */}
                 <Dropdown
                     label="MEASUREMENT TYPE"
-                    options={[...new Set(units.map((unit) => unit.measurement_group))]}
-                    value={selectedUnit?.measurement_group}
-                    onChange={(value) => { setSelectedUnit(units.find((unit) => unit.measurement_group === value) || null); setShowSelectedUnitError(false); }}
+                    options={[...new Set(units.map((unit) => unit.unit_name))]}
+                    value={selectedUnit?.unit_name}
+                    onChange={(value) => { setSelectedUnit(units.find((unit) => unit.unit_name === value) || null); setShowSelectedUnitError(false); }}
                     error={showSelectedUnitError}
                     remainingStyles={{ transform: [{ translateX: dropdownShakeAnimation }] }}
                 />
@@ -246,7 +246,7 @@ export default function AddNewMeasurement() {
                                         value2Ref.current?.focus();
                                     }
                                 }}
-                                keyboardType="phone-pad"
+                                keyboardType="numeric"
                                 returnKeyType={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? "next" : "done"}
                                 onSubmitEditing={() => {
                                     if (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') {
@@ -254,8 +254,8 @@ export default function AddNewMeasurement() {
                                     }
                                 }}
                                 placeholderTextColor={theme.textVeryLight}
-                                placeholder={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? '120' : '0'}
-                                maxLength={3}
+                                placeholder={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? '120' : '0.00'}
+                                maxLength={6}
                                 cursorColor={theme.primary}
                             />
                         </Animated.View>
@@ -272,10 +272,10 @@ export default function AddNewMeasurement() {
                                         style={s.valueInput}
                                         value={value2}
                                         onChangeText={(text) => { setValue2(text); setShowValueError(false); }}
-                                        keyboardType="phone-pad"
+                                        keyboardType="numeric"
                                         placeholderTextColor={theme.textVeryLight}
                                         placeholder='80'
-                                        maxLength={3}
+                                        maxLength={6}
                                         cursorColor={theme.primary}
                                     />
                                 </Animated.View>

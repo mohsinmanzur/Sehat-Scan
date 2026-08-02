@@ -67,7 +67,8 @@ export type MeasurementUnit = {
 
 export type ReferenceRange = {
     id?: string;
-    measurement_unit: MeasurementUnit;
+    unit_id?: string;
+    measurement_unit?: MeasurementUnit;
     min_value: number;
     max_value: number;
     min_value_2?: number;

@@ -9,7 +9,6 @@ import { upsertPatient } from '../services/Database/patient.repository';
 import { clearAllData } from '../services/Database/database.service';
 import { syncAllForPatient } from '../services/Sync/sync.service';
 import { drainMutationQueue } from '../services/Sync/mutation.service';
-import { setStatusBarStyle } from 'expo-status-bar';
 import { useTheme } from './ThemeContext';
 
 interface UserContextValue {
@@ -35,7 +34,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (currentPatient)
         {
             setMode('system');
-            setStatusBarStyle('auto', true);
         }
     }, [currentPatient]);
 

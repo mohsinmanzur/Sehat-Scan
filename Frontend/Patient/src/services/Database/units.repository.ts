@@ -45,16 +45,18 @@ export async function upsertReferenceRanges(
     ranges: ReferenceRange[]
 ): Promise<void> {
     for (const range of ranges) {
-        const unitId = range.measurement_unit?.id ?? '';
+        const unitId = range.unit_id ?? range.measurement_unit?.id ?? '';
         await db.runAsync(
-            `INSERT OR REPLACE INTO reference_ranges
-                (id, unit_id, min_value, max_value, target_gender, min_age, max_age, special_conditions, synced_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT OR REPLACE INTO reference_range
+                (id, unit_id, min_value, max_value, min_value_2, max_value_2, target_gender, min_age, max_age, special_conditions, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 range.id ?? '',
                 unitId,
                 range.min_value,
                 range.max_value,
+                range.min_value_2 != null ? range.min_value_2 : null,
+                range.max_value_2 != null ? range.max_value_2 : null,
                 range.target_gender ?? null,
                 range.min_age ?? null,
                 range.max_age ?? null,
@@ -70,7 +72,7 @@ export async function getReferenceRangesByUnitId(
     unitId: string
 ): Promise<ReferenceRange[]> {
     const rows = await db.getAllAsync<Record<string, unknown>>(
-        'SELECT rr.*, mu.unit_name, mu.symbol, mu.measurement_group FROM reference_ranges rr LEFT JOIN measurement_units mu ON rr.unit_id = mu.id WHERE rr.unit_id = ?',
+        'SELECT rr.*, mu.unit_name, mu.symbol, mu.measurement_group FROM reference_range rr LEFT JOIN measurement_units mu ON rr.unit_id = mu.id WHERE rr.unit_id = ?',
         [unitId]
     );
     return rows.map(rowToReferenceRange);
@@ -78,7 +80,7 @@ export async function getReferenceRangesByUnitId(
 
 export async function getAllReferenceRanges(db: SQLite.SQLiteDatabase): Promise<ReferenceRange[]> {
     const rows = await db.getAllAsync<Record<string, unknown>>(
-        'SELECT rr.*, mu.unit_name, mu.symbol, mu.measurement_group FROM reference_ranges rr LEFT JOIN measurement_units mu ON rr.unit_id = mu.id'
+        'SELECT rr.*, mu.unit_name, mu.symbol, mu.measurement_group FROM reference_range rr LEFT JOIN measurement_units mu ON rr.unit_id = mu.id'
     );
     return rows.map(rowToReferenceRange);
 }
@@ -99,6 +101,7 @@ function rowToUnit(row: Record<string, unknown>): MeasurementUnit {
 function rowToReferenceRange(row: Record<string, unknown>): ReferenceRange {
     return {
         id: row.id as string,
+        unit_id: row.unit_id as string,
         measurement_unit: {
             id: row.unit_id as string,
             unit_name: (row.unit_name as string) ?? '',
@@ -107,6 +110,8 @@ function rowToReferenceRange(row: Record<string, unknown>): ReferenceRange {
         },
         min_value: row.min_value as number,
         max_value: row.max_value as number,
+        min_value_2: row.min_value_2 != null ? (row.min_value_2 as number) : undefined,
+        max_value_2: row.max_value_2 != null ? (row.max_value_2 as number) : undefined,
         target_gender: (row.target_gender as ReferenceRange['target_gender']) ?? undefined,
         min_age: (row.min_age as number) ?? undefined,
         max_age: (row.max_age as number) ?? undefined,
