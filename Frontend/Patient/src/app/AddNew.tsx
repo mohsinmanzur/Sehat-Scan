@@ -5,7 +5,7 @@ import { useTheme } from '@context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { ThemedText, ThemedView } from 'src/components';
 import DatePicker from 'react-native-date-picker';
-import { Dropdown } from 'src/components/common/Dropdown';
+import { GroupedMeasurementDropdown } from 'src/components/common/GroupedMeasurementDropdown';
 import backend from 'src/services/Backend/backend.service';
 import LoadingScreen from 'src/components/LoadingScreen';
 import { useCurrentPatient } from '@context/PatientContext';
@@ -222,11 +222,11 @@ export default function AddNewMeasurement() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* ── Measurement Type ── */}
-                <Dropdown
+                <GroupedMeasurementDropdown
                     label="MEASUREMENT TYPE"
-                    options={[...new Set(units.map((unit) => unit.unit_name))]}
-                    value={selectedUnit?.unit_name}
-                    onChange={(value) => { setSelectedUnit(units.find((unit) => unit.unit_name === value) || null); setShowSelectedUnitError(false); }}
+                    units={units}
+                    value={selectedUnit}
+                    onChange={(unit) => { setSelectedUnit(unit); setShowSelectedUnitError(false); }}
                     error={showSelectedUnitError}
                     remainingStyles={{ transform: [{ translateX: dropdownShakeAnimation }] }}
                 />
