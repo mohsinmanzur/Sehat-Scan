@@ -9,6 +9,8 @@ const webShims = {
   'expo-secure-store': path.resolve(__dirname, 'shims/secure-store.web.js'),
 };
 
+config.resolver.assetExts.push('wasm');
+
 const originalResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

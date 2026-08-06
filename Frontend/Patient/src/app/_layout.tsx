@@ -6,6 +6,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useDatabase } from '../context/DatabaseContext';
 import Toast from 'react-native-toast-message';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Updates from 'expo-updates';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GlobalProvider } from '../context/GlobalContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { DatabaseProvider } from '../context/DatabaseContext';
+import { NetworkProvider } from '../context/NetworkContext';
+import { Snackbar } from 'react-native-snackbar';
 import {
   useFonts,
   Lexend_400Regular,
@@ -42,6 +49,8 @@ function RootLayoutNav() {
     PublicSans_800ExtraBold,
   });
 
+  const { isUpdatePending, currentlyRunning } = Updates.useUpdates();
+
   useEffect(() => {
     if (fontError) throw fontError;
   }, [fontError]);
@@ -51,6 +60,56 @@ function RootLayoutNav() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, isInitialized, isDbReady]);
+
+  // Handle showing snackbar when app is updated and reloads
+  useEffect(() => {
+    const checkUpdateStatus = async () => {
+      try {
+        const currentUpdateId = currentlyRunning?.updateId;
+        if (!currentUpdateId) return; // Not running an OTA update
+
+        const storedUpdateId = await AsyncStorage.getItem('LAST_UPDATE_ID');
+
+        // If we have a stored ID and it's different from the current one, it means we just updated
+        if (storedUpdateId && storedUpdateId !== currentUpdateId) {
+          Snackbar.show({
+            text: 'App successfully updated!',
+            duration: Snackbar.LENGTH_SHORT,
+            action: {
+              text: 'DISMISS',
+              textColor: theme.primary,
+            },
+          });
+        }
+
+        // Store the current update ID so we don't show the message again
+        if (storedUpdateId !== currentUpdateId) {
+          await AsyncStorage.setItem('LAST_UPDATE_ID', currentUpdateId);
+        }
+      } catch (e) {
+        console.error('Error checking update status:', e);
+      }
+    };
+
+    checkUpdateStatus();
+  }, [currentlyRunning?.updateId]);
+
+  // Handle showing snackbar when a new update is downloaded and pending
+  useEffect(() => {
+    if (isUpdatePending) {
+      Snackbar.show({
+        text: 'A new update has been downloaded.',
+        duration: Snackbar.LENGTH_INDEFINITE,
+        action: {
+          text: 'RESTART',
+          textColor: theme.primary,
+          onPress: () => {
+            Updates.reloadAsync();
+          },
+        },
+      });
+    }
+  }, [isUpdatePending]);
 
   if (!fontsLoaded) {
     return null;
@@ -71,11 +130,6 @@ function RootLayoutNav() {
     </>
   );
 }
-
-import { GlobalProvider } from '../context/GlobalContext';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DatabaseProvider } from '../context/DatabaseContext';
-import { NetworkProvider } from '../context/NetworkContext';
 
 export default function RootLayout() {
 
