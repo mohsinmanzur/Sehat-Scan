@@ -15,6 +15,7 @@ import { useOfflineMutation } from '../../hooks/useOfflineMutation';
 import { useNetwork } from '../../context/NetworkContext';
 import { Snackbar } from 'react-native-snackbar';
 import { useDatabase } from '../../context/DatabaseContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditMeasurementScreen() {
 
@@ -23,6 +24,7 @@ export default function EditMeasurementScreen() {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
     const { db } = useDatabase();
+    const insets = useSafeAreaInsets();
     const { isOnline } = useNetwork();
     const { updateMeasurement } = useOfflineMutation(currentPatient?.id);
 
@@ -97,7 +99,7 @@ export default function EditMeasurementScreen() {
     const s = styles(theme);
 
     return (isLoading ? <LoadingScreen /> :
-        <ThemedView safe style={s.root}>
+        <ThemedView style={[s.root, { paddingTop: insets.top }]}>
             {/* ── Custom Header ── */}
             <View style={s.header}>
                 <TouchableOpacity onPress={() => router.back()} style={s.headerIcon}>
@@ -110,7 +112,7 @@ export default function EditMeasurementScreen() {
             </View>
 
             <ScrollView
-                contentContainerStyle={s.scroll}
+                contentContainerStyle={[s.scroll, { paddingBottom: 40 + insets.bottom }]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >

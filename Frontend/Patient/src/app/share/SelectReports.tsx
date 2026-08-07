@@ -52,10 +52,10 @@ const SelectReportsScreen = () => {
     };
 
     return (
-        <ThemedView safe style={styles.container}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
             <Header title="Share Reports" />
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 110 + insets.bottom }]}>
                 <ThemedText style={styles.title}>Select Data to Share</ThemedText>
                 <ThemedText style={{ color: theme.textGray, marginBottom: 24, fontSize: 14, lineHeight: 20 }}>
                     Choose the specific health measurements you want to include in this report.

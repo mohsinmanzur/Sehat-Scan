@@ -18,10 +18,12 @@ import {
 import { Spacer, ThemedText, ThemedView } from "src/components";
 import { ScalePressable } from "src/components/ScalePressable";
 import Toast from "react-native-toast-message";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const UserProfileScreen: React.FC = () => {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
+    const insets = useSafeAreaInsets();
 
     const fullName = currentPatient?.name ?? "";
     const nameParts = fullName.split(" ");
@@ -55,14 +57,14 @@ const UserProfileScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView safe>
+        <ThemedView style={{ paddingTop: insets.top }}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 16}
             >
                 <ScrollView
-                    contentContainerStyle={styles.scrollContent}
+                    contentContainerStyle={[styles.scrollContent, { paddingBottom: 40 + insets.bottom }]}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >

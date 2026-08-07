@@ -12,6 +12,7 @@ import { storeObject } from 'src/services/Storage/storage.service';
 import backend from 'src/services/Backend/backend.service';
 import { bloodGroups } from '../../types/others';
 import { Dropdown } from 'src/components/common/Dropdown';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const date = new Date();
 date.setFullYear(date.getFullYear() - 1);
@@ -21,6 +22,7 @@ const SignupScreen: React.FC = () => {
     const patientEmail = params.patientEmail;
     const router = useRouter();
     const { theme, setMode } = useTheme();
+    const insets = useSafeAreaInsets();
 
     const { setCurrentPatient } = useCurrentPatient();
 
@@ -81,10 +83,10 @@ const SignupScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView style={{ flex: 1, backgroundColor: theme.backgroundLight }} keyboardAvoid safe>
+        <ThemedView style={{ flex: 1, backgroundColor: theme.backgroundLight, paddingTop: insets.top }} keyboardAvoid>
             <ScrollView
                 style={{ flex: 1, width: '100%' }}
-                contentContainerStyle={{ paddingHorizontal: 30, paddingVertical: 20 }}
+                contentContainerStyle={{ paddingHorizontal: 30, paddingTop: 20, paddingBottom: 20 + insets.bottom }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >

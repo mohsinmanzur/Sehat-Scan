@@ -77,10 +77,10 @@ const SharedDetailScreen = () => {
     }
 
     return (
-        <ThemedView safe style={styles.container}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
             <Header title="Shared Reports" />
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 110 + insets.bottom }]}>
                 <ThemedText style={styles.title}>Health Records</ThemedText>
                 <ThemedText style={{ color: theme.textGray, fontSize: 14, lineHeight: 20 }}>
                     These are the records you've shared.

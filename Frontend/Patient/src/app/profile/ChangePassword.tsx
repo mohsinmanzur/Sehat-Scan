@@ -17,9 +17,11 @@ import {
 import { ThemedText, ThemedView } from "src/components";
 import { ScalePressable } from "src/components/ScalePressable";
 import Toast from "react-native-toast-message";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChangePasswordScreen: React.FC = () => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNew, setShowNew] = useState(false);
@@ -62,14 +64,14 @@ const ChangePasswordScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView safe>
+        <ThemedView style={{ paddingTop: insets.top }}>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 16}
             >
                 <ScrollView
-                    contentContainerStyle={styles.scrollContent}
+                    contentContainerStyle={[styles.scrollContent, { paddingBottom: 40 + insets.bottom }]}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >

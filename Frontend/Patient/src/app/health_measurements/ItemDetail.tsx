@@ -13,6 +13,7 @@ import { useDatabase } from 'src/context/DatabaseContext';
 import { getDocumentById } from 'src/services/Database/documents.repository';
 import { useCurrentPatient } from 'src/context/PatientContext';
 import { useOfflineMutation } from 'src/hooks/useOfflineMutation';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HealthMeasurementDetailScreen() {
     const { data, data2, primaryColor, secondaryColor, guestMode = "false" } = useLocalSearchParams<{ data: string, data2?: string, primaryColor: string, secondaryColor: string, guestMode: string }>();
@@ -22,6 +23,7 @@ export default function HealthMeasurementDetailScreen() {
     const { db } = useDatabase();
     const { currentPatient } = useCurrentPatient();
     const { deleteMeasurement } = useOfflineMutation(currentPatient?.id);
+    const insets = useSafeAreaInsets();
 
     const [secureUrl, setSecureUrl] = useState<string | null>(null);
     const [secureUrlLoading, setSecureUrlLoading] = useState(true);
@@ -115,8 +117,8 @@ export default function HealthMeasurementDetailScreen() {
     const displayValue = `${measurement.numeric_value} ${measurement.measurement_unit.symbol}`;
 
     return (
-        <ThemedView safe style={[styles.container, { backgroundColor: theme.backgroundDark }]}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ThemedView style={[styles.container, { backgroundColor: theme.backgroundDark, paddingTop: insets.top }]}>
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 + insets.bottom }]}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity onPress={() => router.back()} style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center', marginLeft: -5 }}>
                         <Ionicons name="arrow-back" size={22} color={theme.textGray} />

@@ -13,10 +13,12 @@ import { Header } from 'src/components/detailed_view/header';
 import { GhostElement } from 'src/components/GhostElement';
 import { ReferenceRange, HealthMeasurement } from '../../types/types';
 import { findBestReferenceRange } from 'src/helpers/detailed_view.helpers';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DetailedViewScreen() {
     const { data, primaryColor, secondaryColor } = useLocalSearchParams<{ data: string; primaryColor: string; secondaryColor: string }>();
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -117,12 +119,12 @@ export default function DetailedViewScreen() {
     }, [allMeasurements]);
 
     return (
-        <ThemedView safe style={{ backgroundColor: theme.backgroundDark }}>
+        <ThemedView style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }}>
             {/* Header */}
             <Header title={`${groupName || 'Measurements'} History`} />
             <ScrollView
                 style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 + insets.bottom }]}
                 showsVerticalScrollIndicator={false}
             >
                 {/* ── Current Weight ── */}

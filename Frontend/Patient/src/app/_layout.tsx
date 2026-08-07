@@ -61,6 +61,7 @@ function RootLayoutNav() {
     }
   }, [fontsLoaded, isInitialized, isDbReady]);
 
+
   // Handle showing snackbar when app is updated and reloads
   useEffect(() => {
     const checkUpdateStatus = async () => {

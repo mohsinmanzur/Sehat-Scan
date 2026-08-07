@@ -120,7 +120,7 @@ export default function ScanDocument() {
 
     if (!permission.granted) {
         return (
-            <ThemedView safe style={styles.container}>
+            <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
                 <ThemedText style={styles.message}>We need your permission to show the camera</ThemedText>
                 <ThemedButton
                     style={{ alignSelf: 'center' }}

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCurrentPatient } from "@context/PatientContext";
 import { useTheme } from "@context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,6 +24,7 @@ const ProfileScreen: React.FC = () => {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
     const { isDeviceOnly, setIsDeviceOnly } = useDeviceOnlySetting(currentPatient?.id);
+    const insets = useSafeAreaInsets();
 
     const styles = styleSheet(theme);
 
@@ -86,7 +88,7 @@ const ProfileScreen: React.FC = () => {
     ];
 
     return (
-        <ThemedView safe scroll>
+        <ThemedView scroll style={{ paddingTop: insets.top }} contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}>
             {/* Header */}
             <View style={styles.header}>
                 <ScalePressable style={styles.backButton} onPress={router.back}>

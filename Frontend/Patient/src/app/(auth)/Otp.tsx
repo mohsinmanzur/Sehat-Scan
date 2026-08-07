@@ -9,7 +9,7 @@ import { Spacer, ThemedButton, ThemedText, ThemedView } from '../../components';
 import { Ionicons } from '@expo/vector-icons';
 import { OtpInput } from "react-native-otp-entry";
 import { storeObject } from '../../services/Storage/storage.service';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const OtpScreen: React.FC = () => {
     const router = useRouter();
@@ -22,6 +22,7 @@ const OtpScreen: React.FC = () => {
     const [otp, setOtp] = useState('')
 
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
 
     const handleVerify = async (otpCode?: string) => {
 
@@ -55,10 +56,10 @@ const OtpScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView safe keyboardAvoid>
+        <ThemedView keyboardAvoid style={{ paddingTop: insets.top }}>
             <ScrollView
                 style={{ flex: 1, width: '100%' }}
-                contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}
+                contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: insets.bottom }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >

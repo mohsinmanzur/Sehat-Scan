@@ -12,6 +12,7 @@ import {
     LayoutAnimation,
 } from "react-native";
 import { ThemedText, ThemedView } from "src/components";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const faqs = [
     {
@@ -42,6 +43,7 @@ const faqs = [
 
 const FAQsScreen: React.FC = () => {
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const styles = styleSheet(theme);
 
@@ -51,9 +53,9 @@ const FAQsScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView safe>
+        <ThemedView style={{ paddingTop: insets.top }}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: 40 + insets.bottom }]}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Header */}

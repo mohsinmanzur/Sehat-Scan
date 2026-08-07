@@ -22,10 +22,12 @@ import { insertLocalDocument } from '../services/Database/documents.repository';
 import { enqueueMutation } from '../services/Database/mutations.repository';
 import { saveLocalImageCopy } from '../services/Sync/image.service';
 import { useDatabase } from '../context/DatabaseContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AddNewMeasurement() {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
+    const insets = useSafeAreaInsets();
     const { scannedImage, setScannedImage } = useGlobalContext();
     const { isOnline } = useNetwork();
     const { db } = useDatabase();
@@ -204,7 +206,7 @@ export default function AddNewMeasurement() {
     const s = styles(theme);
 
     return (isLoading ? <LoadingScreen /> :
-        <ThemedView safe style={s.root}>
+        <ThemedView style={[s.root, { paddingTop: insets.top }]}>
             {/* ── Custom Header ── */}
             <View style={s.header}>
                 <TouchableOpacity onPress={handleBack} style={s.headerIcon}>
@@ -217,7 +219,7 @@ export default function AddNewMeasurement() {
             </View>
 
             <ScrollView
-                contentContainerStyle={s.scroll}
+                contentContainerStyle={[s.scroll, { paddingBottom: 40 + insets.bottom }]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >

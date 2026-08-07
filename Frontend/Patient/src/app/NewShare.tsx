@@ -12,11 +12,13 @@ import { useGlobalContext } from 'src/context/GlobalContext';
 import { Snackbar } from 'react-native-snackbar';
 import { MeasurementUnit } from '../types/types';
 import { Colors } from '@theme/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AddNewMeasurement() {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient()
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     const [isSaving, setisSaving] = useState(false);
 
@@ -69,7 +71,7 @@ export default function AddNewMeasurement() {
     const styles = stylesFunction(theme);
 
     return (
-        <ThemedView safe style={styles.root}>
+        <ThemedView style={[styles.root, { paddingTop: insets.top }]}>
 
             {/* ── Custom Header ── */}
             <View style={styles.header}>
@@ -83,7 +85,7 @@ export default function AddNewMeasurement() {
             </View>
 
             <ScrollView
-                contentContainerStyle={styles.scroll}
+                contentContainerStyle={[styles.scroll, { paddingBottom: 40 + insets.bottom }]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >

@@ -16,7 +16,7 @@ const DashboardScreen: React.FC = () => {
   const { theme, mode } = useTheme();
   const { currentPatient } = useCurrentPatient();
   const insets = useSafeAreaInsets();
-  const patientName = currentPatient?.name?.split(' ')[0] || 'Arjun';
+  const patientName = currentPatient?.name?.split(' ')[0] || 'Mohsin';
   const [refreshing, setRefreshing] = React.useState(false);
 
   const { measurements, isLoading, isSyncing, refresh } = useMeasurements(currentPatient?.id);
@@ -54,13 +54,13 @@ const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ThemedView safe style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
+    <ThemedView style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
       <View style={styles.mainContainer}>
         {isLoading ? (
           <FlatList
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }]}
             data={[1, 2, 3, 4]}
             keyExtractor={(item) => item.toString()}
             numColumns={2}
@@ -74,7 +74,7 @@ const DashboardScreen: React.FC = () => {
           <FlatList
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }]}
             data={units}
             keyExtractor={(item, index) => index.toString()}
             numColumns={2}

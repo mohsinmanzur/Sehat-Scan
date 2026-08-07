@@ -6,16 +6,6 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2A5CFF",
-      "dark": {
-        "image": "./assets/splash.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#0D0D0E"
-      }
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -36,16 +26,21 @@
     "extra": {
       "eas": {
         "projectId": "6e2d986c-d327-4df0-97c8-433795a5fa21"
-      },
-      "router": {
-        "root": "./src/app"
       }
     },
     "plugins": [
+      "expo-router",
       [
-        "expo-router",
+        "expo-splash-screen",
         {
-          "root": "./src/app"
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#2A5CFF",
+          "dark": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#0D0D0E"
+          }
         }
       ],
       [

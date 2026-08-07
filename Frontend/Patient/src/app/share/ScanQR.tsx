@@ -104,7 +104,7 @@ export default function ScanQR() {
 
     if (!permission.granted) {
         return (
-            <ThemedView safe style={styles.container}>
+            <ThemedView style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
                 <ThemedText style={styles.message}>We need your permission to use the camera</ThemedText>
                 <ThemedButton
                     style={{ alignSelf: 'center' }}

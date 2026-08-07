@@ -67,7 +67,7 @@ const SharedDashboardScreen: React.FC = () => {
     };
 
     return (
-        <ThemedView safe style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
+        <ThemedView style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
             <View style={styles.mainContainer}>
                 <View style={{ backgroundColor: theme.primary, padding: 8, paddingHorizontal: 13, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <ThemedText type='h3' style={{ color: theme.backgroundDark, fontSize: 15 }}>Viewing {share?.patient.name}'s Health Reports</ThemedText>
@@ -84,7 +84,7 @@ const SharedDashboardScreen: React.FC = () => {
                     <FlatList
                         style={styles.scrollView}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
+                        contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }]}
                         data={[1, 2, 3, 4]} // Ghost boxes
                         keyExtractor={(item) => item.toString()}
                         numColumns={2}
@@ -95,7 +95,7 @@ const SharedDashboardScreen: React.FC = () => {
                     <FlatList
                         style={styles.scrollView}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
+                        contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }]}
                         data={units}
                         keyExtractor={(item, index) => index.toString()}
                         numColumns={2}

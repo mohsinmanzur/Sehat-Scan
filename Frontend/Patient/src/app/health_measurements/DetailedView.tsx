@@ -14,11 +14,13 @@ import { ReferenceRange, HealthMeasurement } from '../../types/types';
 import { findBestReferenceRange } from 'src/helpers/detailed_view.helpers';
 import { useMeasurements } from '../../hooks/useMeasurements';
 import { useReferenceRanges } from '../../hooks/useReferenceRanges';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DetailedViewScreen() {
     const { data, primaryColor, secondaryColor } = useLocalSearchParams<{ data: string; primaryColor: string; secondaryColor: string }>();
     const { currentPatient } = useCurrentPatient();
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
 
     const initialMeasurements = useMemo(() => {
         if (!data) return [];
@@ -141,11 +143,11 @@ export default function DetailedViewScreen() {
     }, [allMeasurements]);
 
     return (
-        <ThemedView safe style={{ backgroundColor: theme.backgroundDark }}>
+        <ThemedView style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }}>
             <Header title={`${groupName || 'Measurements'} History`} />
             <ScrollView
                 style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 + insets.bottom, paddingTop: 8 }}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
@@ -186,11 +188,11 @@ export default function DetailedViewScreen() {
                                     <ThemedText style={{ fontFamily: 'PublicSans_700Bold' }}>Target: </ThemedText>
                                     {bestReferenceRange ? (
                                         <ThemedText>
-                                            {bestReferenceRange.min_value}
-                                            {bestReferenceRange.min_value_2 != null && `/${bestReferenceRange.min_value_2}`}
-                                            {' - '}
                                             {bestReferenceRange.max_value}
                                             {bestReferenceRange.max_value_2 != null && `/${bestReferenceRange.max_value_2}`}
+                                            {' - '}
+                                            {bestReferenceRange.min_value}
+                                            {bestReferenceRange.min_value_2 != null && `/${bestReferenceRange.min_value_2}`}
                                             {` ${measurement?.measurement_unit?.symbol}`}
                                         </ThemedText>
                                     ) : (
@@ -308,7 +310,6 @@ export default function DetailedViewScreen() {
 
 const styles = StyleSheet.create({
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingBottom: 100, paddingTop: 8 },
     currentLabel: { fontSize: 11, fontWeight: '600', letterSpacing: 1.4, marginBottom: 6, marginTop: 4 },
     currentRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 14 },
     currentValue: { fontSize: 68, fontWeight: '900', lineHeight: 68, letterSpacing: -2 },
