@@ -1,7 +1,8 @@
 import { useTheme } from "@context/ThemeContext";
 import React, { useState, useEffect } from "react";
 import { Colors } from "../../constants/colors";
-import { RefreshControl, StyleSheet, View, useWindowDimensions } from "react-native";
+import { RefreshControl, StyleSheet, View, useWindowDimensions, Image } from "react-native";
+import { CurvedArrow } from "../../components/dashboard";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { SvgXml } from "react-native-svg";
 import { doctorSvg } from "../../constants/avatars";
@@ -39,7 +40,7 @@ export function CountdownTimer({ expiresAt, style }: { expiresAt: string | Date,
 }
 
 export default function Share() {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { currentPatient } = useCurrentPatient();
     const { isOnline } = useNetwork();
     const { isDeviceOnly } = useDeviceOnlySetting(currentPatient?.id);
@@ -111,10 +112,22 @@ export default function Share() {
                 </View>)}
 
                 {isOnline && !isDeviceOnly && activeGrants.length === 0 && (
-                    <View style={{ height: '160%', justifyContent: 'center', alignItems: 'center' }}>
-                        <ThemedText style={{ fontSize: 15, color: theme.textGray, paddingHorizontal: 20, textAlign: 'center', marginTop: 20 }}>
-                            No reports currently shared.
-                        </ThemedText>
+                    <View style={{ height: windowHeight * 0.55, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ width: '100%', alignItems: 'center' }}>
+                            <Image
+                                source={
+                                    mode === 'dark'
+                                        ? require('../../../assets/dark/share_01.png')
+                                        : require('../../../assets/light/share_01.png')
+                                }
+                                style={{ width: '75%', height: 180, resizeMode: 'contain', marginBottom: 15 }}
+                            />
+                            <ThemedText type={'h3'} style={{ paddingHorizontal: 30, textAlign: 'center' }}>
+                                {'Share your first report!'}
+                            </ThemedText>
+
+                            <CurvedArrow />
+                        </View>
                     </View>
                 )}
 

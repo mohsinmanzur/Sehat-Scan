@@ -21,7 +21,7 @@ const SignupScreen: React.FC = () => {
     const params = useLocalSearchParams<{ patientEmail: string }>();
     const patientEmail = params.patientEmail;
     const router = useRouter();
-    const { theme, setMode } = useTheme();
+    const { theme, setMode, mode } = useTheme();
     const insets = useSafeAreaInsets();
 
     const { setCurrentPatient } = useCurrentPatient();
@@ -166,7 +166,7 @@ const SignupScreen: React.FC = () => {
                     maximumDate={new Date()}
                     locale={'en-GB'}
                     dividerColor={dobError ? theme.danger : theme.text}
-                    theme={'light'}
+                    theme={mode == 'system' ? 'auto' : mode}
                 />
 
                 <ThemedText type={'h2'} style={{ marginTop: 20 }}>🩸 Blood Group</ThemedText>

@@ -1,7 +1,9 @@
 import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { setStatusBarStyle } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Colors } from '../constants/colors';
+import { Platform } from 'react-native';
 
 // Define the shape of the theme object
 type Theme = typeof Colors.light;
@@ -27,7 +29,11 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
 
   useEffect(() => {
     setStatusBarStyle(currentMode === 'dark' ? 'light' : 'dark', true);
-  }, [currentMode]);
+    
+    if (Platform.OS === 'android') {
+      NavigationBar.setButtonStyleAsync(currentMode === 'dark' ? 'light' : 'dark');
+    }
+  }, [currentMode, theme]);
 
   // Create a memoized JSON string of the current theme
   const themeJson = useMemo(() => JSON.stringify(theme, null, 2), [theme]);

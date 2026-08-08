@@ -1,23 +1,22 @@
-import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, View, RefreshControl, FlatList, Text } from 'react-native';
+import React, { useCallback } from 'react';
+import { StyleSheet, View, RefreshControl, FlatList, Image } from 'react-native';
 import { useCurrentPatient } from '../../context/PatientContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Header } from '../../components/dashboard';
+import { Header, CurvedArrow } from '../../components/dashboard';
 import { Spacer, ThemedText, ThemedView } from '../../components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HealthMeasurement } from '../../types/types';
 import { UpdatedMeasurementCard } from '../../components/dashboard/UpdatedMeasurementCard';
 import { useMeasurements } from '../../hooks/useMeasurements';
 import { SkeletonCard } from '../../components/dashboard/SkeletonCard';
-import { FontAwesome5 } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 
 const DashboardScreen: React.FC = () => {
   const { theme, mode } = useTheme();
   const { currentPatient } = useCurrentPatient();
-  const insets = useSafeAreaInsets();
   const patientName = currentPatient?.name?.split(' ')[0] || 'Mohsin';
   const [refreshing, setRefreshing] = React.useState(false);
+  const insets = useSafeAreaInsets();
 
   const { measurements, isLoading, isSyncing, refresh } = useMeasurements(currentPatient?.id);
 
@@ -54,7 +53,7 @@ const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ThemedView style={{ backgroundColor: theme.backgroundDark, paddingTop: insets.top }} >
+    <ThemedView safe style={{ backgroundColor: theme.backgroundDark }} >
       <View style={styles.mainContainer}>
         {isLoading ? (
           <FlatList
@@ -74,7 +73,7 @@ const DashboardScreen: React.FC = () => {
           <FlatList
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }]}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: 20 + insets.bottom }, units.length === 0 && { flexGrow: 1 }]}
             data={units}
             keyExtractor={(item, index) => index.toString()}
             numColumns={2}
@@ -92,18 +91,25 @@ const DashboardScreen: React.FC = () => {
               />
             }
             ListEmptyComponent={
-              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <Spacer height={180} />
-                <FontAwesome5 name={'plus'} color={theme.primary} size={30} />
-                <ThemedText type={'h3'} style={{ textAlign: 'center', paddingTop: 15 }}>
-                  {"Add New Measurements!"}
-                </ThemedText>
-                <ThemedText style={{ fontSize: 14, color: theme.textGray, paddingHorizontal: 30, textAlign: 'center', marginTop: 8, lineHeight: 20 }}>
-                  {'Start by adding new measurements here.'}
-                </ThemedText>
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ width: '100%', alignItems: 'center' }}>
+                  <Image
+                    source={
+                      mode === 'dark'
+                        ? require('../../../assets/dark/dashboard_01.png')
+                        : require('../../../assets/light/dashboard_01.png')
+                    }
+                    style={{ width: '70%', height: 170, resizeMode: 'contain', marginBottom: 15 }}
+                  />
+                  <ThemedText type={'h3'} style={{ paddingHorizontal: 50, textAlign: 'center' }}>
+                    {'Add a measurement to see the magic!'}
+                  </ThemedText>
+
+                  <CurvedArrow />
+                </View>
               </View>
             }
-            renderItem={({ item: unit, index }) => {
+            renderItem={({ item: unit }) => {
               const latest = getLatestMeasurementsForUnit(unit);
               const secondaryLatest = latest?.numeric_value_2 != null ? { ...latest, numeric_value: latest.numeric_value_2 } : undefined;
               const iconName = latest?.measurement_unit?.icon_name || 'activity';

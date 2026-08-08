@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import { View, Text, StyleSheet, ScrollView, Animated, RefreshControl } from 'react-native';
 import { ThemedText, ThemedView } from 'src/components';
 import { useCurrentPatient } from '@context/PatientContext';
-import { getRelativeTimeRange } from 'src/utils/date';
+import { getRelativeTimeRange, formatFullDateTime } from 'src/utils/date';
 import { ScalePressable } from 'src/components/ScalePressable';
 import { HistoryRow } from 'src/components/detailed_view/history_row';
 import { WeightChart } from 'src/components/detailed_view/weight_chart';
@@ -160,24 +160,26 @@ export default function DetailedViewScreen() {
                 }
             >
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-                    <Text style={[styles.currentLabel, { color: theme.textLight }]}>
+                    {/*<Text style={[styles.currentLabel, { color: theme.textLight }]}>
                         CURRENT {selectedUnitName.toUpperCase()}
-                    </Text>
+                    </Text> */}
                     {showLoading ? (
                         <GhostElement style={{ height: 68, width: 140, borderRadius: 8, marginBottom: 14, marginLeft: 20 }} />
                     ) : (() => {
                         const primaryVal = measurement?.numeric_value;
                         const measurement2 = measurement?.numeric_value_2;
                         return (
-                            <View style={styles.currentRow}>
+                            <Text>
                                 <Text style={[styles.currentValue, { color: theme.text }]}>{primaryVal}</Text>
                                 {measurement2 !== undefined && measurement2 !== null &&
                                     <Text style={[styles.currentValue, { color: theme.text, fontSize: 45 }]}>/{measurement2}</Text>
                                 }
-                                <Text style={[styles.currentUnit, { color: theme.text }]}>{measurement?.measurement_unit?.symbol}</Text>
-                            </View>
+                                <Text style={[styles.currentUnit, { color: theme.text }]}> {measurement?.measurement_unit?.symbol}</Text>
+                            </Text>
                         );
                     })()}
+
+                    <ThemedText style={[styles.currentDate, { color: theme.textLight }]}>{measurement?.created_at ? formatFullDateTime(measurement.created_at) : ''}</ThemedText>
 
                     {showLoading ? (
                         <GhostElement style={{ height: 38, width: 180, borderRadius: 24, marginBottom: 24 }} />
@@ -218,7 +220,12 @@ export default function DetailedViewScreen() {
                                 <Text style={[styles.statsPillMain, { color: theme.text }]}> {stats.diff} {measurement?.measurement_unit?.symbol}</Text>
                                 <Text style={[styles.statsPillSub, { color: theme.textGray }]}>  over {stats.timeRange}</Text>
                             </View>
-                        ) : null}
+                        ) : (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                                <Text style={[styles.statsPillIcon, { color: theme.textGray }]}>•</Text>
+                                <Text style={[styles.statsPillSub, { color: theme.textGray }]}> No comparison data</Text>
+                            </View>
+                        )}
                     </View>
                     {showLoading ? (
                         <GhostElement style={{ height: 180, borderRadius: 12, marginTop: 10 }} />
@@ -228,33 +235,35 @@ export default function DetailedViewScreen() {
                 </Animated.View>
 
                 {(availableUnits.length > 1 || (measurement?.measurement_unit?.unit_name?.toLowerCase() !== groupName?.toLowerCase())) && (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ gap: 15 }}>
-                        {availableUnits.map(unit => {
-                            const isSelected = unit === selectedUnitName;
-                            return (
-                                <ScalePressable
-                                    key={unit}
-                                    onPress={() => setSelectedUnitName(unit)}
-                                    style={{
-                                        paddingHorizontal: 16,
-                                        paddingVertical: 6,
-                                        borderRadius: 20,
-                                        backgroundColor: theme.backgroundLight,
-                                        borderWidth: 1,
-                                        borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
-                                    }}
-                                >
-                                    <ThemedText style={{
-                                        color: isSelected ? theme.text : theme.textGray,
-                                        fontWeight: isSelected ? '700' : '500',
-                                        fontSize: 14
-                                    }}>
-                                        {unit}
-                                    </ThemedText>
-                                </ScalePressable>
-                            );
-                        })}
-                    </ScrollView>
+                    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 15 }} contentContainerStyle={{ gap: 15 }}>
+                            {availableUnits.map(unit => {
+                                const isSelected = unit === selectedUnitName;
+                                return (
+                                    <ScalePressable
+                                        key={unit}
+                                        onPress={() => setSelectedUnitName(unit)}
+                                        style={{
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 6,
+                                            borderRadius: 20,
+                                            backgroundColor: theme.backgroundLight,
+                                            borderWidth: 1,
+                                            borderColor: isSelected ? (primaryColor || theme.primary) : theme.backgroundLight,
+                                        }}
+                                    >
+                                        <ThemedText style={{
+                                            color: isSelected ? theme.text : theme.textGray,
+                                            fontWeight: isSelected ? '700' : '500',
+                                            fontSize: 14
+                                        }}>
+                                            {unit}
+                                        </ThemedText>
+                                    </ScalePressable>
+                                );
+                            })}
+                        </ScrollView>
+                    </Animated.View>
                 )}
 
                 <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
@@ -311,7 +320,8 @@ export default function DetailedViewScreen() {
 const styles = StyleSheet.create({
     scroll: { flex: 1 },
     currentLabel: { fontSize: 11, fontWeight: '600', letterSpacing: 1.4, marginBottom: 6, marginTop: 4 },
-    currentRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 14 },
+    currentDate: { fontSize: 14, letterSpacing: 0.5, marginBottom: 15, paddingHorizontal: 4, paddingTop: 5 },
+    currentRow: { flexDirection: 'row', alignItems: 'baseline' },
     currentValue: { fontSize: 68, fontWeight: '900', lineHeight: 68, letterSpacing: -2 },
     currentUnit: { fontSize: 22, fontWeight: '600', marginBottom: 0, marginLeft: 4 },
     statsPill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 9, marginBottom: 24, elevation: 1.5 },

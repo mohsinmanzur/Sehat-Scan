@@ -33,7 +33,6 @@ export const ThemedView = ({ safe = false, keyboardAvoid = false, scroll = false
         },
         safe && {
           paddingTop: insets.top,
-          paddingBottom: insets.bottom,
           paddingLeft: insets.left,
           paddingRight: insets.right
         },
