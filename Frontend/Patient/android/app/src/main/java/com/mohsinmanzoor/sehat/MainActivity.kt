@@ -1,4 +1,4 @@
-package com.mohsinmanzoor.sehatscan
+package com.mohsinmanzoor.sehat
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -2,6 +2,7 @@ import { useTheme } from '@context/ThemeContext';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Animated, RefreshControl } from 'react-native';
+import { getAnalytics, logScreenView, logEvent } from '@react-native-firebase/analytics';
 import { ThemedText, ThemedView } from 'src/components';
 import { useCurrentPatient } from '@context/PatientContext';
 import { getRelativeTimeRange, formatFullDateTime } from 'src/utils/date';
@@ -103,7 +104,17 @@ export default function DetailedViewScreen() {
     useFocusEffect(
         useCallback(() => {
             reloadFromCache().catch(() => { });
-        }, [reloadFromCache])
+
+            // Log screen view with measurement context
+            if (groupName && selectedUnitName) {
+                logScreenView(getAnalytics(), {
+                    screen_name: 'DetailedView',
+                    // @ts-ignore — custom params are allowed by Firebase
+                    measurement_group: groupName,
+                    measurement_unit: selectedUnitName,
+                });
+            }
+        }, [reloadFromCache, groupName, selectedUnitName])
     );
 
     // Navigate back when the last measurement in this group has been deleted
@@ -242,7 +253,13 @@ export default function DetailedViewScreen() {
                                 return (
                                     <ScalePressable
                                         key={unit}
-                                        onPress={() => setSelectedUnitName(unit)}
+                                        onPress={() => {
+                                            setSelectedUnitName(unit);
+                                            logEvent(getAnalytics(), 'unit_pill_tapped', {
+                                                measurement_group: groupName ?? '',
+                                                measurement_unit: unit,
+                                            });
+                                        }}
                                         style={{
                                             paddingHorizontal: 16,
                                             paddingVertical: 6,

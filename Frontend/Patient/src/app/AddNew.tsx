@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { getAnalytics, logEvent } from '@react-native-firebase/analytics';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Pressable, Animated, BackHandler, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { ThemedText, ThemedView } from 'src/components';
+import { ThemedText, ThemedView, Divider, Spacer } from 'src/components';
 import DatePicker from 'react-native-date-picker';
 import { GroupedMeasurementDropdown } from 'src/components/common/GroupedMeasurementDropdown';
 import backend from 'src/services/Backend/backend.service';
@@ -24,6 +25,36 @@ import { saveLocalImageCopy } from '../services/Sync/image.service';
 import { useDatabase } from '../context/DatabaseContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+const MAX_ROWS = 20;
+
+type MeasurementRow = {
+    id: string;
+    selectedUnit: MeasurementUnit | null;
+    value: string;
+    value2: string;
+    showSelectedUnitError: boolean;
+    showValueError: boolean;
+    valueShakeAnimation: Animated.Value;
+    dropdownShakeAnimation: Animated.Value;
+};
+
+function createEmptyRow(): MeasurementRow {
+    return {
+        id: `row_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        selectedUnit: null,
+        value: '',
+        value2: '',
+        showSelectedUnitError: false,
+        showValueError: false,
+        valueShakeAnimation: new Animated.Value(0),
+        dropdownShakeAnimation: new Animated.Value(0),
+    };
+}
+
+function rowNeedsSecondaryValue(row: MeasurementRow): boolean {
+    return !!(row.selectedUnit?.has_secondary_value || row.selectedUnit?.measurement_group === 'Blood Pressure');
+}
+
 export default function AddNewMeasurement() {
     const { theme } = useTheme();
     const { currentPatient } = useCurrentPatient();
@@ -34,26 +65,16 @@ export default function AddNewMeasurement() {
     const { createMeasurement } = useOfflineMutation(currentPatient?.id);
     const router = useRouter();
 
-    const [selectedUnit, setSelectedUnit] = useState<MeasurementUnit | null>(null);
-    const [value, setValue] = useState('');
-    const [value2, setValue2] = useState('');
-    const value2Ref = useRef<TextInput>(null);
+    const [rows, setRows] = useState<MeasurementRow[]>(() => [createEmptyRow()]);
+    const value2Refs = useRef<Record<string, TextInput | null>>({});
 
     const [selectedDate, setSelectedDate] = useState(new Date());
-
-    const [showSelectedUnitError, setShowSelectedUnitError] = useState(false);
-    const [showValueError, setShowValueError] = useState(false);
 
     const [isSaving, setisSaving] = useState(false);
 
     const [pickerOpen, setPickerOpen] = useState<'date' | 'time' | null>(null);
 
     const { units, isLoading } = useMeasurementUnits();
-
-    const valueShakeAnimation = useRef(new Animated.Value(0)).current;
-    const dropdownShakeAnimation = useRef(new Animated.Value(0)).current;
-
-    const [selectedSpecialConditions, setSelectedSpecialConditions] = useState<string[]>([]);
 
     const [ocrText, setOcrText] = useState<string>('');
     const [ocrLabel, setOcrLabel] = useState<string | null>(null);
@@ -103,31 +124,48 @@ export default function AddNewMeasurement() {
         return () => backHandler.remove();
     }, [router]);
 
+    const updateRow = (rowId: string, patch: Partial<MeasurementRow>) => {
+        setRows(prev => prev.map(r => r.id === rowId ? { ...r, ...patch } : r));
+    };
+
+    const addRow = () => {
+        setRows(prev => prev.length >= MAX_ROWS ? prev : [...prev, createEmptyRow()]);
+    };
+
+    const removeRow = (rowId: string) => {
+        setRows(prev => prev.length <= 1 ? prev : prev.filter(r => r.id !== rowId));
+    };
+
     const handleSave = async () => {
-        if (!selectedUnit) {
-            if (!value) {
-                setShowValueError(true);
-                errorShakeAnimation(valueShakeAnimation);
+        let hasError = false;
+        const validatedRows = rows.map(row => {
+            const needsValue2 = rowNeedsSecondaryValue(row);
+            let showSelectedUnitError = false;
+            let showValueError = false;
+
+            if (!row.selectedUnit) {
+                showSelectedUnitError = true;
+                errorShakeAnimation(row.dropdownShakeAnimation);
+                hasError = true;
+                if (!row.value) {
+                    showValueError = true;
+                    errorShakeAnimation(row.valueShakeAnimation);
+                }
+            } else if (!row.value || (needsValue2 && !row.value2)) {
+                showValueError = true;
+                errorShakeAnimation(row.valueShakeAnimation);
+                hasError = true;
             }
-            setShowSelectedUnitError(true);
-            errorShakeAnimation(dropdownShakeAnimation);
-            return;
-        }
-        if (!value) {
-            setShowValueError(true);
-            errorShakeAnimation(valueShakeAnimation);
-            return;
-        }
-        if ((selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') && !value2) {
-            setShowValueError(true);
-            errorShakeAnimation(valueShakeAnimation);
-            return;
-        }
-        setShowSelectedUnitError(false);
-        setShowValueError(false);
+
+            return { ...row, showSelectedUnitError, showValueError };
+        });
+
+        setRows(validatedRows);
+        if (hasError) return;
 
         setisSaving(true);
 
+        let savedCount = 0;
         try {
             let documentId: string | null = null;
 
@@ -168,25 +206,40 @@ export default function AddNewMeasurement() {
                 }
             }
 
-            await createMeasurement({
-                patient_id: currentPatient?.id,
-                document_id: documentId,
-                unit_id: selectedUnit?.id,
-                numeric_value: parseFloat(value),
-                numeric_value_2: (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? parseFloat(value2) : undefined,
-                created_at: selectedDate,
-            });
+            for (const row of rows) {
+                const needsValue2 = rowNeedsSecondaryValue(row);
+                await createMeasurement({
+                    patient_id: currentPatient?.id,
+                    document_id: documentId,
+                    unit_id: row.selectedUnit?.id,
+                    numeric_value: parseFloat(row.value),
+                    numeric_value_2: needsValue2 ? parseFloat(row.value2) : undefined,
+                    created_at: selectedDate,
+                });
 
+                logEvent(getAnalytics(), 'measurement_added', {
+                    measurement_unit: row.selectedUnit?.unit_name ?? '',
+                    measurement_group: row.selectedUnit?.measurement_group ?? '',
+                });
+
+                savedCount++;
+            }
+
+            const isBatch = rows.length > 1;
             router.back();
             Snackbar.show({
-                text: isOnline ? 'Measurement added successfully' : 'Saved offline — will sync when connected',
+                text: isOnline
+                    ? (isBatch ? `${rows.length} measurements added successfully` : 'Measurement added successfully')
+                    : (isBatch ? `Saved offline (${rows.length} measurements) — will sync when connected` : 'Saved offline — will sync when connected'),
                 duration: Snackbar.LENGTH_SHORT,
                 backgroundColor: theme.primary,
             });
             setScannedImage(null);
         } catch (error) {
             Snackbar.show({
-                text: `Failed to add measurement: ${error.message}`,
+                text: savedCount > 0
+                    ? `Saved ${savedCount} of ${rows.length} — failed: ${error.message}`
+                    : `Failed to add measurement: ${error.message}`,
                 duration: Snackbar.LENGTH_SHORT,
                 backgroundColor: theme.danger,
             });
@@ -199,9 +252,6 @@ export default function AddNewMeasurement() {
     const handleAddPhoto = () => {
         router.push('health_measurements/Scan');
     }
-
-    const displayDate = formatOrdinalDate(selectedDate);
-    const displayTime = formatTime(selectedDate);
 
     const s = styles(theme);
 
@@ -223,87 +273,101 @@ export default function AddNewMeasurement() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* ── Measurement Type ── */}
-                <GroupedMeasurementDropdown
-                    label="MEASUREMENT TYPE"
-                    units={units}
-                    value={selectedUnit}
-                    onChange={(unit) => { setSelectedUnit(unit); setShowSelectedUnitError(false); }}
-                    error={showSelectedUnitError}
-                    remainingStyles={{ transform: [{ translateX: dropdownShakeAnimation }] }}
-                />
+                {rows.map((row, idx) => {
+                    const needsValue2 = rowNeedsSecondaryValue(row);
 
-                {/* ── Value & Unit ── */}
-                <View style={s.row}>
-                    <View style={s.col2}>
-                        <Text style={s.label}>VALUE</Text>
-                        <Animated.View style={[s.valueBox, { borderColor: showValueError ? theme.danger : theme.card, transform: [{ translateX: valueShakeAnimation }] }]}>
-                            <TextInput
-                                style={s.valueInput}
-                                value={value}
-                                onChangeText={(text) => {
-                                    setValue(text);
-                                    setShowValueError(false);
-                                    if (text.length === 3 && (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure')) {
-                                        value2Ref.current?.focus();
-                                    }
-                                }}
-                                keyboardType="numeric"
-                                returnKeyType={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? "next" : "done"}
-                                onSubmitEditing={() => {
-                                    if (selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') {
-                                        value2Ref.current?.focus();
-                                    }
-                                }}
-                                placeholderTextColor={theme.textVeryLight}
-                                placeholder={(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') ? '120' : '0.00'}
-                                maxLength={6}
-                                cursorColor={theme.primary}
+                    return (
+                        <View key={row.id}>
+                            {idx > 0 && (
+                                <View style={s.rowDivider}>
+                                    <Divider height={1} />
+                                </View>
+                            )}
+
+                            <Spacer height={10} />
+
+                            {/* ── Measurement Type ── */}
+                            <GroupedMeasurementDropdown
+                                emptyText='Select Category'
+                                units={units}
+                                value={row.selectedUnit}
+                                onChange={(unit) => updateRow(row.id, { selectedUnit: unit, showSelectedUnitError: false })}
+                                error={row.showSelectedUnitError}
+                                remainingStyles={{ transform: [{ translateX: row.dropdownShakeAnimation }] }}
+                                onRemove={rows.length > 1 ? () => removeRow(row.id) : undefined}
                             />
-                        </Animated.View>
-                    </View>
 
-                    {(selectedUnit?.has_secondary_value || selectedUnit?.measurement_group === 'Blood Pressure') &&
-                        <>
-                            <ThemedText style={{ color: theme.textGray, fontSize: 50, marginBottom: 15 }}>/</ThemedText>
+                            {/* ── Value & Unit ── */}
+                            <View style={s.row}>
+                                <View style={s.col2}>
+                                    {/*<Text style={s.label}>VALUE</Text> */}
+                                    <Animated.View style={[s.valueBox, { borderColor: row.showValueError ? theme.danger : theme.card, transform: [{ translateX: row.valueShakeAnimation }] }]}>
+                                        <TextInput
+                                            style={s.valueInput}
+                                            value={row.value}
+                                            onChangeText={(text) => {
+                                                updateRow(row.id, { value: text, showValueError: false });
+                                                if (text.length === 3 && needsValue2) {
+                                                    value2Refs.current[row.id]?.focus();
+                                                }
+                                            }}
+                                            keyboardType="numeric"
+                                            returnKeyType={needsValue2 ? "next" : "done"}
+                                            onSubmitEditing={() => {
+                                                if (needsValue2) {
+                                                    value2Refs.current[row.id]?.focus();
+                                                }
+                                            }}
+                                            placeholderTextColor={theme.textVeryLight}
+                                            placeholder={needsValue2 ? '120' : '0.00'}
+                                            maxLength={6}
+                                            cursorColor={theme.primary}
+                                        />
+                                    </Animated.View>
+                                </View>
 
-                            <View style={{ flex: 0.75 }}>
-                                <Animated.View style={[s.valueBox, { borderColor: showValueError ? theme.danger : theme.card, transform: [{ translateX: valueShakeAnimation }] }]}>
-                                    <TextInput
-                                        ref={value2Ref}
-                                        style={s.valueInput}
-                                        value={value2}
-                                        onChangeText={(text) => { setValue2(text); setShowValueError(false); }}
-                                        keyboardType="numeric"
-                                        placeholderTextColor={theme.textVeryLight}
-                                        placeholder='80'
-                                        maxLength={6}
-                                        cursorColor={theme.primary}
-                                    />
-                                </Animated.View>
+                                {needsValue2 &&
+                                    <>
+                                        <ThemedText style={{ color: theme.textGray, fontSize: 50, marginBottom: 15 }}>/</ThemedText>
+
+                                        <View style={{ flex: 0.75 }}>
+                                            <Animated.View style={[s.valueBox, { borderColor: row.showValueError ? theme.danger : theme.card, transform: [{ translateX: row.valueShakeAnimation }] }]}>
+                                                <TextInput
+                                                    ref={(el) => { value2Refs.current[row.id] = el; }}
+                                                    style={s.valueInput}
+                                                    value={row.value2}
+                                                    onChangeText={(text) => updateRow(row.id, { value2: text, showValueError: false })}
+                                                    keyboardType="numeric"
+                                                    placeholderTextColor={theme.textVeryLight}
+                                                    placeholder='80'
+                                                    maxLength={6}
+                                                    cursorColor={theme.primary}
+                                                />
+                                            </Animated.View>
+                                        </View>
+                                    </>
+                                }
+
+                                {!!row.selectedUnit?.symbol && (
+                                    <ThemedText style={s.unitText} type={'subtitle'}>{row.selectedUnit.symbol}</ThemedText>
+                                )}
                             </View>
-                        </>
-                    }
+                        </View>
+                    );
+                })}
 
-                    <ThemedText style={s.unitText} type={'subtitle'}>{selectedUnit?.symbol}</ThemedText>
-                </View>
-                {/*
-                <View style={s.optionsRow}>
-                    <ScalePressable
-                        style={[s.optionPill, selectedSpecialConditions.includes('Morning') && s.optionPillActive]}
-                        onPress={() => {
-                            if (selectedSpecialConditions.includes('Morning')) {
-                                setSelectedSpecialConditions(selectedSpecialConditions.filter((condition) => condition !== 'Morning'));
-                            } else {
-                                setSelectedSpecialConditions([...selectedSpecialConditions, 'Morning']);
-                            }
-                        }}
-                    >
-                        <Text style={[s.optionPillText, selectedSpecialConditions.includes('Morning') && s.optionPillTextActive]}>Morning</Text>
-                    </ScalePressable>
-                </View>*/}
+                {/* ── Add another measurement ── */}
+                {rows.length < MAX_ROWS && (
+                    <Pressable onPress={addRow} style={s.addRowTouchArea} hitSlop={8}>
+                        <View style={{ flex: 1 }}><Divider height={2} /></View>
+                        <View style={s.addRowPlusCircle}>
+                            <Ionicons name="add" size={22} color={theme.textGray} />
+                        </View>
+                        <View style={{ flex: 1 }}><Divider height={2} /></View>
+                    </Pressable>
+                )}
 
-                {/* ── Date & Time ── */}
+                {/* ── Date & Time (shared across all measurements) ── */}
                 <View style={s.row}>
                     <View style={s.col2}>
                         <Text style={s.label}>DATE</Text>
@@ -312,7 +376,7 @@ export default function AddNewMeasurement() {
                             onPress={() => setPickerOpen('date')}
                             activeOpacity={0.75}
                         >
-                            <Text style={s.pickerText}>{displayDate}</Text>
+                            <Text style={s.pickerText} numberOfLines={1}>{formatOrdinalDate(selectedDate)}</Text>
                             <Ionicons name="calendar-outline" size={18} color={theme.textGray} />
                         </TouchableOpacity>
                     </View>
@@ -323,7 +387,7 @@ export default function AddNewMeasurement() {
                             onPress={() => setPickerOpen('time')}
                             activeOpacity={0.75}
                         >
-                            <Text style={s.pickerText}>{displayTime}</Text>
+                            <Text style={s.pickerText} numberOfLines={1}>{formatTime(selectedDate)}</Text>
                             <Ionicons name="time-outline" size={18} color={theme.textGray} />
                         </TouchableOpacity>
                     </View>
@@ -353,7 +417,7 @@ export default function AddNewMeasurement() {
                                 <ActivityIndicator color="#fff" />
                             ) : (
                                 <>
-                                    <Text style={s.saveBtnText}>Save Measurement</Text>
+                                    <Text style={s.saveBtnText}>Save Measurement{rows.length > 1 ? 's' : ''}</Text>
                                     <MaterialIcons name="save" size={20} color="#fff" style={{ marginLeft: 8 }} />
                                 </>
                             )}
@@ -448,7 +512,6 @@ const styles = (theme: any) => StyleSheet.create({
         color: theme.textLight,
         letterSpacing: 0.8,
         marginBottom: 8,
-        marginTop: 18,
     },
     iconBox: {
         width: 65,
@@ -475,7 +538,8 @@ const styles = (theme: any) => StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 14,
         justifyContent: 'center',
-        borderWidth: 1
+        borderWidth: 1,
+        marginTop: 20
     },
     valueInput: {
         fontSize: 36,
@@ -508,6 +572,24 @@ const styles = (theme: any) => StyleSheet.create({
         color: theme.text,
     },
 
+    /* ── Between-row divider ── */
+    rowDivider: {
+        marginVertical: 22,
+    },
+
+    /* ── Add-another divider ── */
+    addRowTouchArea: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginVertical: 20
+    },
+    addRowPlusCircle: {
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
     /* ── Save Button ── */
     saveBtn: {
         flexDirection: 'row',
@@ -522,35 +604,6 @@ const styles = (theme: any) => StyleSheet.create({
         fontSize: 16,
         fontFamily: 'Lexend_800ExtraBold',
         color: '#fff',
-    },
-
-    /* ── Options Pills ── */
-    optionsRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 12
-    },
-    optionPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 25,
-        backgroundColor: theme.card,
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    optionPillActive: {
-        backgroundColor: theme.primarySoft,
-        borderColor: theme.primary,
-    },
-    optionPillText: {
-        fontSize: 13,
-        fontFamily: 'Lexend_600SemiBold',
-        color: theme.textGray,
-    },
-    optionPillTextActive: {
-        color: theme.primary,
     },
 
     /* ── OCR ── */

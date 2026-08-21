@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Sehat",
-    "scheme": "com.mohsinmanzoor.sehatscan",
+    "scheme": "com.mohsinmanzoor.sehat",
     "slug": "sehat",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
       "**/*"
     ],
     "android": {
-      "package": "com.mohsinmanzoor.sehatscan",
+      "package": "com.mohsinmanzoor.sehat",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
@@ -21,7 +21,8 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "googleServicesFile": "./google-services.json"
     },
     "extra": {
       "eas": {
@@ -52,7 +53,17 @@
       "expo-sqlite",
       "expo-asset",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "mohsins-org"
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/analytics"
     ],
     "owner": "mohsin_manzoor",
     "updates": {
@@ -62,7 +73,8 @@
       }
     },
     "ios": {
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "googleServicesFile": "./GoogleService-Info.plist"
     }
   }
 }

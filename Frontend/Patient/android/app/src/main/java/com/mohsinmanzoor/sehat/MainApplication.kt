@@ -1,4 +1,4 @@
-package com.mohsinmanzoor.sehatscan
+package com.mohsinmanzoor.sehat
 
 import android.app.Application
 import android.content.res.Configuration

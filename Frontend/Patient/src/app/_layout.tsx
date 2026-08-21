@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
+import { getAnalytics, logScreenView } from '@react-native-firebase/analytics';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { useCurrentPatient, UserProvider } from '@context/PatientContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -28,6 +29,16 @@ import {
   PublicSans_700Bold,
   PublicSans_800ExtraBold
 } from '@expo-google-fonts/public-sans';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://9c4743ef4595f7669c3d6ea4cb58dd45@o4511877500698624.ingest.de.sentry.io/4511877512560720',
+  sendDefaultPii: true,
+  enableLogs: true,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,6 +65,15 @@ function RootLayoutNav() {
   useEffect(() => {
     if (fontError) throw fontError;
   }, [fontError]);
+
+  // Automatic screen tracking for Firebase Analytics
+  const pathname = usePathname();
+  useEffect(() => {
+    if (!pathname) return;
+    logScreenView(getAnalytics(), {
+      screen_name: pathname,
+    });
+  }, [pathname]);
 
   useEffect(() => {
     if (fontsLoaded && isInitialized && isDbReady) {
@@ -132,7 +152,7 @@ function RootLayoutNav() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -152,3 +172,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);
