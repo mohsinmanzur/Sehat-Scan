@@ -461,33 +461,22 @@ export default function AddNewMeasurement() {
                 </View>
 
                 {scannedImage && (
-                    <View style={[s.ocrBox, { backgroundColor: theme.card, borderColor: theme.card }]}>
+                    <View style={[s.ocrBox]}>
                         <View style={s.ocrHeader}>
-                            <MaterialIcons name="auto-awesome" size={16} color={theme.primary} />
-                            <Text style={[s.ocrTitle, { color: theme.textGray }]}>AI AUTO-FILL</Text>
-                            {aiRecordType && (
-                                <Text style={[s.ocrBadge, { color: theme.primary }]}>
-                                    {aiRecordType.replace('_', ' ')}{aiMatchCount != null ? ` · ${aiMatchCount} found` : ''}
-                                </Text>
-                            )}
-                        </View>
-                        {aiLoading ? (
-                            <View style={s.ocrLoading}>
-                                <ActivityIndicator color={theme.primary} size="small" />
-                                <Text style={[s.ocrHint, { color: theme.textLight }]}>Analyzing document…</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <MaterialIcons name="auto-awesome" size={16} color={theme.primary} />
                             </View>
-                        ) : aiError ? (
-                            <Text style={[s.ocrHint, { color: theme.danger }]}>{aiError}</Text>
-                        ) : (
-                            <TextInput
-                                value={aiNotes}
-                                onChangeText={setAiNotes}
-                                multiline
-                                placeholder="No extra context detected. You can type notes here."
-                                placeholderTextColor={theme.textVeryLight}
-                                style={[s.ocrInput, { color: theme.text }]}
-                            />
-                        )}
+                            {aiLoading ?
+                                (
+                                    <ActivityIndicator color={theme.primary} size="small" style={{ paddingLeft: 23 }} />
+                                )
+                                :
+                                (
+                                    <Text style={[s.ocrBadge, { color: theme.primary }]}>
+                                        {`${aiMatchCount} found`}
+                                    </Text>
+                                )}
+                        </View>
                     </View>
                 )}
 
@@ -631,14 +620,14 @@ const styles = (theme: any) => StyleSheet.create({
 
     /* ── OCR ── */
     ocrBox: {
-        marginTop: 16,
-        padding: 14,
+        paddingHorizontal: 10,
+        paddingBottom: 20,
         borderRadius: 14,
-        borderWidth: StyleSheet.hairlineWidth,
     },
     ocrHeader: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'flex-end',
         gap: 6,
         marginBottom: 8,
     },
@@ -648,7 +637,6 @@ const styles = (theme: any) => StyleSheet.create({
         letterSpacing: 0.8,
     },
     ocrBadge: {
-        marginLeft: 'auto',
         fontSize: 11,
         fontFamily: 'Lexend_700Bold',
     },
