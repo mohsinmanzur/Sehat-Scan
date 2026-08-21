@@ -1,3 +1,5 @@
+import { MeasurementUnit } from './types';
+
 export const bloodGroups = [
     { label: 'A+', value: 'A+' },
     { label: 'A-', value: 'A-' },
@@ -21,3 +23,17 @@ export type UploadMedicalDocument = {
     file: string;
 
 }
+
+export type AiExtractedMeasurement = {
+    matched_unit: MeasurementUnit | null;
+    numeric_value: number;
+    numeric_value_2: number | null;
+    confidence: number;
+};
+
+export type AiExtractionResult = {
+    record_type: 'lab_report' | 'prescription' | 'imaging' | 'other';
+    date_issued: string | null;
+    notes: string | null;
+    measurements: AiExtractedMeasurement[];
+};

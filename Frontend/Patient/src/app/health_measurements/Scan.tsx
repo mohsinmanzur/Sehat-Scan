@@ -223,7 +223,7 @@ export default function ScanDocument() {
         {isProcessing && (
             <View style={styles.processingMessageContainer}>
                 <ActivityIndicator color={theme.primary} />
-                <ThemedText>Digitizing via OCR...</ThemedText>
+                <ThemedText>Processing photo...</ThemedText>
             </View>
         )}
 

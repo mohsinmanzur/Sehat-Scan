@@ -12,5 +12,6 @@ import { Reference_Range } from '../entities/reference_range.entity';
   ],
   controllers: [HealthMeasurementController],
   providers: [HealthMeasurementService],
+  exports: [HealthMeasurementService],
 })
 export class HealthMeasurementModule {}

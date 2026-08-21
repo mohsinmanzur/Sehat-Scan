@@ -12,6 +12,7 @@ import { MedicalDocumentModule } from './medical_document/medical_document.modul
 import { HealthMeasurementModule } from './health_measurement/health_measurement.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { ShareModule } from './share/share.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ShareModule } from './share/share.module';
     HealthMeasurementModule,
     DoctorModule,
     ShareModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

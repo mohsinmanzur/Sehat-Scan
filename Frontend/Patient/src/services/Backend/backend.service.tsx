@@ -4,8 +4,8 @@ import { AccessGrant, HealthMeasurement, MeasurementUnit, Patient, ReferenceRang
 import { UpdateHealthMeasurement } from "../../types/updatetypes";
 import { MeasurementUnitDTO } from "../../types/parameters";
 import { removeValue } from "../Storage/storage.service";
-import { UploadMedicalDocument } from '../../types/others';
-import { API_BASE_URL, OCR_BASE_URL } from '@env';
+import { AiExtractionResult, UploadMedicalDocument } from '../../types/others';
+import { API_BASE_URL } from '@env';
 
 // On web, React Native's FormData coerces `{uri,name,type}` to the string
 // "[object Object]". Fetch the URI as a Blob so multipart works in browsers.
@@ -355,18 +355,15 @@ class Backend {
     }
 
     // =========================
-    // OCR (local Python service)
+    // AI Extraction (Gemini)
     // =========================
-    async extractTextFromImage(imageUri: string): Promise<{ text: string; label: string; confidence: number }> {
+    async extractMeasurementsFromImage(imageUri: string): Promise<AiExtractionResult> {
         const formData = new FormData();
-        await appendImageToFormData(formData, imageUri, 'ocr.jpg', 'image/jpeg');
+        await appendImageToFormData(formData, imageUri, 'scan.jpg', 'image/jpeg');
 
-        const response = await fetch(`${OCR_BASE_URL}/ocr`, {
-            method: 'POST',
-            body: formData,
-        });
+        const response = await this.request('/ai/extract-measurements', allowedMethods.POST, formData, false, null);
         if (!response.ok) {
-            throw new Error(`OCR failed ${response.status}: ${await response.text()}`);
+            throw new Error(`AI extraction failed ${response.status}: ${await response.text()}`);
         }
         return await response.json();
     }

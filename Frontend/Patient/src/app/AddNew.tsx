@@ -76,36 +76,59 @@ export default function AddNewMeasurement() {
 
     const { units, isLoading } = useMeasurementUnits();
 
-    const [ocrText, setOcrText] = useState<string>('');
-    const [ocrLabel, setOcrLabel] = useState<string | null>(null);
-    const [ocrConfidence, setOcrConfidence] = useState<number | null>(null);
-    const [ocrLoading, setOcrLoading] = useState(false);
-    const [ocrError, setOcrError] = useState<string | null>(null);
+    const [aiRecordType, setAiRecordType] = useState<'lab_report' | 'prescription' | 'imaging' | 'other' | null>(null);
+    const [aiNotes, setAiNotes] = useState<string>('');
+    const [aiMatchCount, setAiMatchCount] = useState<number | null>(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!scannedImage) {
-            setOcrText('');
-            setOcrLabel(null);
-            setOcrConfidence(null);
-            setOcrError(null);
+            setAiRecordType(null);
+            setAiNotes('');
+            setAiMatchCount(null);
+            setAiError(null);
             return;
         }
         let cancelled = false;
-        setOcrLoading(true);
-        setOcrError(null);
-        backend.extractTextFromImage(scannedImage)
+        setAiLoading(true);
+        setAiError(null);
+        backend.extractMeasurementsFromImage(scannedImage)
             .then((res) => {
                 if (cancelled) return;
-                setOcrText(res.text);
-                setOcrLabel(res.label);
-                setOcrConfidence(res.confidence);
+                setAiRecordType(res.record_type);
+                setAiNotes(res.notes ?? '');
+                setAiMatchCount(res.measurements.length);
+
+                const newRows = res.measurements
+                    .filter((m) => m.matched_unit !== null)
+                    .map((m) => {
+                        const row = createEmptyRow();
+                        row.selectedUnit = m.matched_unit;
+                        row.value = String(m.numeric_value);
+                        row.value2 = (rowNeedsSecondaryValue(row) && m.numeric_value_2 != null) ? String(m.numeric_value_2) : '';
+                        return row;
+                    });
+
+                if (newRows.length > 0) {
+                    setRows((prev) => {
+                        const prevIsBlank = prev.length === 1 && !prev[0].selectedUnit && !prev[0].value && !prev[0].value2;
+                        const merged = prevIsBlank ? newRows : [...prev, ...newRows];
+                        return merged.slice(0, MAX_ROWS);
+                    });
+                }
+
+                if (res.date_issued) {
+                    const parsedDate = new Date(res.date_issued);
+                    if (!isNaN(parsedDate.getTime())) setSelectedDate(parsedDate);
+                }
             })
             .catch((err) => {
                 if (cancelled) return;
-                setOcrError(err?.message ?? 'OCR failed');
+                setAiError(err?.message ?? 'Auto-fill failed');
             })
             .finally(() => {
-                if (!cancelled) setOcrLoading(false);
+                if (!cancelled) setAiLoading(false);
             });
         return () => { cancelled = true; };
     }, [scannedImage]);
@@ -174,9 +197,9 @@ export default function AddNewMeasurement() {
                     // Upload to cloud as before
                     const uploadresponse = await backend.createandUploadMedicalDocument({
                         patient_id: currentPatient?.id || '',
-                        record_type: ocrLabel === 'medical prescription' ? 'prescription' : 'other',
+                        record_type: aiRecordType || 'other',
                         file: scannedImage,
-                        ocr_extracted_text: ocrText || undefined,
+                        ocr_extracted_text: aiNotes || undefined,
                     });
                     documentId = uploadresponse?.id || null;
                 } else if (db) {
@@ -188,16 +211,16 @@ export default function AddNewMeasurement() {
                         localDocId,
                         localPath,
                         currentPatient?.id || '',
-                        ocrLabel === 'medical prescription' ? 'prescription' : 'other',
-                        ocrText || undefined
+                        aiRecordType || 'other',
+                        aiNotes || undefined
                     );
                     await enqueueMutation(db, {
                         entity_type: 'medical_document',
                         operation: 'create',
                         payload: JSON.stringify({
                             local_file_path: localPath,
-                            record_type: ocrLabel === 'medical prescription' ? 'prescription' : 'other',
-                            ocr_extracted_text: ocrText || null,
+                            record_type: aiRecordType || 'other',
+                            ocr_extracted_text: aiNotes || null,
                         }),
                         local_id: localDocId,
                         server_id: null,
@@ -440,27 +463,27 @@ export default function AddNewMeasurement() {
                 {scannedImage && (
                     <View style={[s.ocrBox, { backgroundColor: theme.card, borderColor: theme.card }]}>
                         <View style={s.ocrHeader}>
-                            <MaterialIcons name="text-snippet" size={16} color={theme.primary} />
-                            <Text style={[s.ocrTitle, { color: theme.textGray }]}>EXTRACTED TEXT</Text>
-                            {ocrLabel && (
+                            <MaterialIcons name="auto-awesome" size={16} color={theme.primary} />
+                            <Text style={[s.ocrTitle, { color: theme.textGray }]}>AI AUTO-FILL</Text>
+                            {aiRecordType && (
                                 <Text style={[s.ocrBadge, { color: theme.primary }]}>
-                                    {ocrLabel}{ocrConfidence != null ? ` · ${Math.round(ocrConfidence * 100)}%` : ''}
+                                    {aiRecordType.replace('_', ' ')}{aiMatchCount != null ? ` · ${aiMatchCount} found` : ''}
                                 </Text>
                             )}
                         </View>
-                        {ocrLoading ? (
+                        {aiLoading ? (
                             <View style={s.ocrLoading}>
                                 <ActivityIndicator color={theme.primary} size="small" />
-                                <Text style={[s.ocrHint, { color: theme.textLight }]}>Reading prescription…</Text>
+                                <Text style={[s.ocrHint, { color: theme.textLight }]}>Analyzing document…</Text>
                             </View>
-                        ) : ocrError ? (
-                            <Text style={[s.ocrHint, { color: theme.danger }]}>{ocrError}</Text>
+                        ) : aiError ? (
+                            <Text style={[s.ocrHint, { color: theme.danger }]}>{aiError}</Text>
                         ) : (
                             <TextInput
-                                value={ocrText}
-                                onChangeText={setOcrText}
+                                value={aiNotes}
+                                onChangeText={setAiNotes}
                                 multiline
-                                placeholder="No text detected. You can type notes here."
+                                placeholder="No extra context detected. You can type notes here."
                                 placeholderTextColor={theme.textVeryLight}
                                 style={[s.ocrInput, { color: theme.text }]}
                             />
