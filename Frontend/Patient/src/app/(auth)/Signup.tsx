@@ -6,7 +6,7 @@ import { Spacer, ThemedButton, ThemedText, ThemedTextInput, ThemedView } from 's
 import DatePicker from 'react-native-date-picker'
 import { Ionicons } from '@expo/vector-icons';
 import SwitchToggle from 'react-native-switch-toggle';
-import Toast from 'react-native-toast-message';
+import { handleError } from 'src/utils/errorHandler';
 import { useCurrentPatient } from '@context/PatientContext';
 import { storeObject } from 'src/services/Storage/storage.service';
 import backend from 'src/services/Backend/backend.service';
@@ -18,7 +18,7 @@ const date = new Date();
 date.setFullYear(date.getFullYear() - 1);
 
 const SignupScreen: React.FC = () => {
-    const params = useLocalSearchParams<{ patientEmail: string }>();
+    const params = useLocalSearchParams<{ patientEmail: string; patientName?: string }>();
     const patientEmail = params.patientEmail;
     const router = useRouter();
     const { theme, setMode, mode } = useTheme();
@@ -26,7 +26,7 @@ const SignupScreen: React.FC = () => {
 
     const { setCurrentPatient } = useCurrentPatient();
 
-    const [name, setName] = useState('');
+    const [name, setName] = useState(params.patientName ?? '');
     const [gender, setGender] = useState<'male' | 'female' | 'other'>(null);
     const [dateOfBirth, setDateOfBirth] = useState(date);
     const [bloodGroup, setBloodGroup] = useState('');
@@ -67,14 +67,10 @@ const SignupScreen: React.FC = () => {
 
             router.replace('/(tabs)/Dashboard');
         }
-        catch (error) {
-            console.log('Signup error:', error.message);
-            Toast.show({
-                type: 'error',
-                text1: 'Failed to create account',
-                text2: error.message,
-                position: 'bottom',
-                visibilityTime: 3000,
+        catch (error: any) {
+            handleError(error, {
+                userMessage: `Failed to create account: ${error.message}`,
+                backgroundColor: theme.danger,
             });
         }
         finally {

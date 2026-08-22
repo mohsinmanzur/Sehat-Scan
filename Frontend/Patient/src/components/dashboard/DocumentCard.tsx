@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
 
@@ -37,7 +38,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ title, type, status,
   }
 
   return (
-    <TouchableOpacity style={[styles.cardContainer, { backgroundColor: theme.card === '#20201F' ? '#2A2A29' : '#FFFFFF' }]}>
+    <ScalePressable style={[styles.cardContainer, { backgroundColor: theme.card === '#20201F' ? '#2A2A29' : '#FFFFFF' }]}>
       {/* Colored left border indicator */}
       <View style={[styles.leftBorderIndicator, { backgroundColor: themeColor }]} />
 
@@ -72,7 +73,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({ title, type, status,
           <Ionicons name="chevron-forward" size={20} color={theme.textLight} style={styles.chevron} />
         </View>
       </View>
-    </TouchableOpacity>
+    </ScalePressable>
   );
 };
 

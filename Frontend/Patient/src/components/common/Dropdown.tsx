@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@context/ThemeContext';
 
@@ -23,10 +24,9 @@ export function Dropdown({ label, options, value, onChange, placeholder = 'Selec
         <View>
             {label && <Text style={s.label}>{label}</Text>}
 
-            <TouchableOpacity
+            <ScalePressable
                 style={[s.trigger, { borderColor: error ? theme.danger : theme.card }, remainingStyles]}
                 onPress={() => setOpen(o => !o)}
-                activeOpacity={0.8}
             >
                 <Text style={[s.triggerText, !value && { color: theme.textLight }]}>
                     {value || placeholder}
@@ -36,12 +36,12 @@ export function Dropdown({ label, options, value, onChange, placeholder = 'Selec
                     size={18}
                     color={theme.textGray}
                 />
-            </TouchableOpacity>
+            </ScalePressable>
 
             {open && (
                 <View style={s.list}>
                     {options.map(opt => (
-                        <TouchableOpacity
+                        <ScalePressable
                             key={opt}
                             style={[s.item, opt === value && s.itemActive]}
                             onPress={() => { onChange(opt); setOpen(false); }}
@@ -49,7 +49,7 @@ export function Dropdown({ label, options, value, onChange, placeholder = 'Selec
                             <Text style={[s.itemText, opt === value && { color: theme.primary }]}>
                                 {opt}
                             </Text>
-                        </TouchableOpacity>
+                        </ScalePressable>
                     ))}
                 </View>
             )}

@@ -1,6 +1,7 @@
 import { useTheme } from "@context/ThemeContext";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { ScalePressable } from "src/components/ScalePressable";
 
 type Document = {
     id: string;
@@ -13,10 +14,9 @@ export default function FileSelector({ doc, selectedDoc, setSelectedDoc }: { doc
     const { theme } = useTheme();
     const s = styles(theme);
     return (
-        <TouchableOpacity
+        <ScalePressable
             style={[s.docCard, isSelected && { borderColor: theme.primary, borderWidth: 1.5 }]}
             onPress={() => setSelectedDoc(isSelected ? null : doc.id)}
-            activeOpacity={0.8}
         >
             <View style={[s.docIconBox, { backgroundColor: theme.primarySoft }]}>
                 <FontAwesome5 name="file-medical" size={18} color={theme.primary} />
@@ -31,7 +31,7 @@ export default function FileSelector({ doc, selectedDoc, setSelectedDoc }: { doc
             ]}>
                 {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
             </View>
-        </TouchableOpacity>
+        </ScalePressable>
     );
 }
 

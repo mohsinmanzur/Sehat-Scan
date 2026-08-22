@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Pressable, BackHandler, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, BackHandler, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@context/ThemeContext';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -75,9 +75,9 @@ export default function AddNewMeasurement() {
 
             {/* ── Custom Header ── */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={handleBack} style={styles.headerIcon}>
+                <ScalePressable onPress={handleBack} style={styles.headerIcon}>
                     <Ionicons name="arrow-down" size={22} color={theme.textGray} />
-                </TouchableOpacity>
+                </ScalePressable>
                 <ThemedText style={styles.headerTitle}>Share</ThemedText>
                 <Pressable style={[styles.headerIcon, { opacity: 0 }]}>
                     <Ionicons name="ellipsis-vertical" size={20} color={theme.textGray} />

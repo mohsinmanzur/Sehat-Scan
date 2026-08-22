@@ -1,7 +1,8 @@
 import { useTheme } from "@context/ThemeContext";
 import { MaterialIcons, Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native"
+import { View, Text, StyleSheet, Dimensions } from "react-native"
+import { ScalePressable } from "src/components/ScalePressable";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Animated, { useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -48,19 +49,18 @@ function CustomTabBar({ state, descriptors, navigation, theme }: BottomTabBarPro
                 const label = options.title !== undefined ? options.title : route.name;
 
                 return (
-                    <TouchableOpacity
+                    <ScalePressable
                         key={route.key}
                         accessibilityRole="button"
                         accessibilityState={isFocused ? { selected: true } : {}}
                         onPress={onPress}
                         style={styles.tabItem}
-                        activeOpacity={0.8}
                     >
                         {Icon && Icon({ focused: isFocused, color, size: 24 })}
                         <Text style={[styles.tabLabel, { color }]}>
                             {label as string}
                         </Text>
-                    </TouchableOpacity>
+                    </ScalePressable>
                 );
             })}
         </View>

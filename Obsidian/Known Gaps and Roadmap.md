@@ -13,7 +13,7 @@ Things visible directly in the code that are either temporary dev states, incomp
 - `POST /auth/requestcode` is short-circuited: it returns a canned "OTP disabled for development" message and never reaches the real OTP/email flow.
 - `POST /auth/verifycode` and `/auth/doctor/verifycode` both accept **`000000` as a hardcoded bypass** regardless of the real OTP.
 - The real OTP service (argon2-hashed, 5-min TTL, attempt tracking) exists and works — it's just not in the live path.
-- Google OAuth (`/auth/google`) verifies the token but doesn't issue a Sehat session or link to a Patient/Doctor record.
+- Google Sign-In (`/auth/google`) now issues a real Sehat session and mirrors the OTP flow's sign-in/sign-up split — but it's blocked on missing real Google OAuth credentials (empty `GOOGLE_WEB_CLIENT_ID`/`GOOGLE_CLIENT_ID` placeholders, stub `google-services.json`/`GoogleService-Info.plist`) and needs a fresh native dev-client build. See [[Authentication]].
 
 **Do not treat current auth behavior as production-ready security.**
 

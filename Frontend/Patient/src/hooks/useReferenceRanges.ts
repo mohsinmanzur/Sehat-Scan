@@ -5,6 +5,7 @@ import {
     getReferenceRangesByUnitId,
     getAllReferenceRanges,
 } from '../services/Database/units.repository';
+import { handleError } from 'src/utils/errorHandler';
 
 export function useReferenceRanges(unitId?: string) {
     const { db } = useDatabase();
@@ -23,7 +24,8 @@ export function useReferenceRanges(unitId?: string) {
                 : await getAllReferenceRanges(db);
             setRanges(data);
             setIsLoading(false);
-        } catch {
+        } catch (error) {
+            handleError(error);
             setIsLoading(false);
         }
     }, [db, unitId]);

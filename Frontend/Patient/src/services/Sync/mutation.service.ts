@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { handleError } from 'src/utils/errorHandler';
 import backend from '../Backend/backend.service';
 import {
     getPendingMutations,
@@ -33,6 +34,7 @@ export async function drainMutationQueue(
             await processMutation(db, mutation, patientId);
             succeeded++;
         } catch (error) {
+            handleError(error);
             const message = error instanceof Error ? error.message : String(error);
             await incrementRetry(db, mutation.id, message);
             failed++;

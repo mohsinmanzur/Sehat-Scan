@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
@@ -88,9 +88,9 @@ export default function HealthMeasurementDetailScreen() {
         return (
             <View style={[styles.centerContainer, { backgroundColor: theme.backgroundLight }]}>
                 <Text style={{ color: theme.text }}>Measurement not found.</Text>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <ScalePressable onPress={() => router.back()} style={styles.backButton}>
                     <Text style={{ color: theme.primary }}>Go Back</Text>
-                </TouchableOpacity>
+                </ScalePressable>
             </View>
         );
     }
@@ -120,9 +120,9 @@ export default function HealthMeasurementDetailScreen() {
         <ThemedView style={[styles.container, { backgroundColor: theme.backgroundDark, paddingTop: insets.top }]}>
             <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 + insets.bottom }]}>
                 <View style={styles.headerTop}>
-                    <TouchableOpacity onPress={() => router.back()} style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center', marginLeft: -5 }}>
+                    <ScalePressable onPress={() => router.back()} style={{ width: 36, height: 36, justifyContent: 'center', alignItems: 'center', marginLeft: -5 }}>
                         <Ionicons name="arrow-back" size={22} color={theme.textGray} />
-                    </TouchableOpacity>
+                    </ScalePressable>
                 </View>
 
                 <View style={styles.heroContent}>

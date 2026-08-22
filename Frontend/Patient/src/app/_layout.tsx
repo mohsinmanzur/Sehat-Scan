@@ -5,7 +5,6 @@ import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { useCurrentPatient, UserProvider } from '@context/PatientContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useDatabase } from '../context/DatabaseContext';
-import Toast from 'react-native-toast-message';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Updates from 'expo-updates';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -147,7 +146,6 @@ function RootLayoutNav() {
         <Stack.Screen name="profile" options={{ animation: 'none' }} />
         <Stack.Screen name="share" options={{ headerShown: false, presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
       </Stack>
-      <Toast />
     </>
   );
 }

@@ -16,7 +16,8 @@ import {
 } from "react-native";
 import { ThemedText, ThemedView } from "src/components";
 import { ScalePressable } from "src/components/ScalePressable";
-import Toast from "react-native-toast-message";
+import { Snackbar } from "react-native-snackbar";
+import { handleError } from "src/utils/errorHandler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChangePasswordScreen: React.FC = () => {
@@ -48,16 +49,20 @@ const ChangePasswordScreen: React.FC = () => {
         try {
             // TODO: wire up actual password change API
             await new Promise((res) => setTimeout(res, 800));
-            Toast.show({
-                type: "success",
-                text1: "Password changed",
-                text2: "Your password has been updated.",
+            Snackbar.show({
+                text: 'Password changed: Your password has been updated.',
+                duration: Snackbar.LENGTH_SHORT,
+                backgroundColor: theme.success,
+                textColor: '#FFFFFF',
             });
             setNewPassword("");
             setConfirmPassword("");
             router.back();
-        } catch {
-            Toast.show({ type: "error", text1: "Failed to change password." });
+        } catch (error) {
+            handleError(error, {
+                userMessage: 'Failed to change password.',
+                backgroundColor: theme.danger,
+            });
         } finally {
             setIsSaving(false);
         }

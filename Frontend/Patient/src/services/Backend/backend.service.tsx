@@ -155,11 +155,45 @@ class Backend {
 
         const data = await response.json();
 
-        this.jwtToken = data.jwtToken;
-        this.refreshToken = data.refreshToken;
+        if (data?.jwtToken || data?.jwt || data?.token) {
+            const token = String(data.jwtToken || data.jwt || data.token);
+            this.jwtToken = token;
+            await SecureStore.setItemAsync('jwtToken', token);
+        }
+        if (data?.refreshToken) {
+            const rToken = String(data.refreshToken);
+            this.refreshToken = rToken;
+            await SecureStore.setItemAsync('refreshToken', rToken);
+        }
 
-        await SecureStore.setItemAsync('jwtToken', data.jwtToken);
-        await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+        return data;
+    }
+
+    async googleAuth(idToken: string): Promise<Record<string, any>> {
+        if (!idToken) throw new Error('Google ID token is required');
+
+        const response = await this.request('/auth/google', allowedMethods.POST, { idToken });
+
+        if (response.status === 404) {
+            return { needsRegistration: true };
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error in Google authentication: ${response.status} ${response.statusText}: ${await response.text()}`);
+        }
+
+        const data = await response.json();
+
+        if (data?.jwtToken || data?.jwt || data?.token) {
+            const token = String(data.jwtToken || data.jwt || data.token);
+            this.jwtToken = token;
+            await SecureStore.setItemAsync('jwtToken', token);
+        }
+        if (data?.refreshToken) {
+            const rToken = String(data.refreshToken);
+            this.refreshToken = rToken;
+            await SecureStore.setItemAsync('refreshToken', rToken);
+        }
 
         return data;
     }
@@ -172,11 +206,16 @@ class Backend {
 
         const data = await response.json();
 
-        this.jwtToken = data.jwtToken;
-        this.refreshToken = data.refreshToken;
-
-        await SecureStore.setItemAsync('jwtToken', data.jwtToken);
-        await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+        if (data?.jwtToken || data?.jwt || data?.token) {
+            const token = String(data.jwtToken || data.jwt || data.token);
+            this.jwtToken = token;
+            await SecureStore.setItemAsync('jwtToken', token);
+        }
+        if (data?.refreshToken) {
+            const rToken = String(data.refreshToken);
+            this.refreshToken = rToken;
+            await SecureStore.setItemAsync('refreshToken', rToken);
+        }
 
         return data;
     }

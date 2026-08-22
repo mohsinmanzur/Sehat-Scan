@@ -8,9 +8,9 @@ import {
     StyleSheet,
     View,
     ScrollView,
-    TouchableOpacity,
     LayoutAnimation,
 } from "react-native";
+import { ScalePressable } from "src/components/ScalePressable";
 import { ThemedText, ThemedView } from "src/components";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -73,9 +73,8 @@ const FAQsScreen: React.FC = () => {
 
                 <View style={styles.faqList}>
                     {faqs.map((item, i) => (
-                        <TouchableOpacity
+                        <ScalePressable
                             key={i}
-                            activeOpacity={0.8}
                             onPress={() => toggle(i)}
                             style={[
                                 styles.faqItem,
@@ -93,7 +92,7 @@ const FAQsScreen: React.FC = () => {
                             {expandedIndex === i && (
                                 <ThemedText style={styles.answerText}>{item.a}</ThemedText>
                             )}
-                        </TouchableOpacity>
+                        </ScalePressable>
                     ))}
                 </View>
             </ScrollView>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '@context/ThemeContext';
@@ -10,9 +11,9 @@ export function Header({ title }: { title: string }) {
 
     return (
         <View style={[styles.header, { backgroundColor: 'transparent' }]}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.headerIcon}>
+            <ScalePressable onPress={() => router.back()} style={styles.headerIcon}>
                 <Ionicons name="arrow-back" size={22} color={theme.textGray} />
-            </TouchableOpacity>
+            </ScalePressable>
             <ThemedText style={[styles.headerTitle, { color: theme.textGray }]}>{title}</ThemedText>
             <Ionicons name="ellipsis-vertical" size={20} color={theme.textGray} style={{ opacity: 0 }} />
         </View>

@@ -4,6 +4,7 @@ import { useDatabase } from '../context/DatabaseContext';
 import { useNetwork } from '../context/NetworkContext';
 import { getAccessGrantsByPatient } from '../services/Database/shares.repository';
 import { syncShares } from '../services/Sync/sync.service';
+import { handleError } from 'src/utils/errorHandler';
 
 export function useShares(patientId: string | undefined) {
     const { db } = useDatabase();
@@ -32,7 +33,8 @@ export function useShares(patientId: string | undefined) {
                 setShares(cached);
                 setIsLoading(false);
             }
-        } catch {
+        } catch (error) {
+            handleError(error);
             if (isMounted.current) setIsLoading(false);
         }
     }, [db, patientId]);

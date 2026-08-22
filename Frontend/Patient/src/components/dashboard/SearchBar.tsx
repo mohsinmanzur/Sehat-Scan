@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
 
@@ -16,9 +17,9 @@ export const SearchBar: React.FC = () => {
           style={[styles.input, { color: theme.text }]}
         />
       </View>
-      <TouchableOpacity style={[styles.filterButton, { backgroundColor: theme.card }]}>
+      <ScalePressable style={[styles.filterButton, { backgroundColor: theme.card }]}>
         <Ionicons name="options-outline" size={24} color={theme.textGray} />
-      </TouchableOpacity>
+      </ScalePressable>
     </View>
   );
 };

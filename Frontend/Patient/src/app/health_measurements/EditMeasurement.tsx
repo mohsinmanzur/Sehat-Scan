@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Pressable, Animated, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Animated, ActivityIndicator } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import { useCurrentPatient } from '@context/PatientContext';
 import { useOfflineMutation } from '../../hooks/useOfflineMutation';
 import { useNetwork } from '../../context/NetworkContext';
 import { Snackbar } from 'react-native-snackbar';
+import { handleError } from 'src/utils/errorHandler';
 import { useDatabase } from '../../context/DatabaseContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -86,8 +88,11 @@ export default function EditMeasurementScreen() {
             // Double back to go to DetailedView screen
             router.back();
             router.back();
-        } catch (error) {
-            console.error("Failed to update measurement", error);
+        } catch (error: any) {
+            handleError(error, {
+                userMessage: `Failed to update measurement: ${error.message}`,
+                backgroundColor: theme.danger,
+            });
         } finally {
             setisSaving(false);
         }
@@ -102,9 +107,9 @@ export default function EditMeasurementScreen() {
         <ThemedView style={[s.root, { paddingTop: insets.top }]}>
             {/* ── Custom Header ── */}
             <View style={s.header}>
-                <TouchableOpacity onPress={() => router.back()} style={s.headerIcon}>
+                <ScalePressable onPress={() => router.back()} style={s.headerIcon}>
                     <Ionicons name="arrow-back" size={22} color={theme.textGray} />
-                </TouchableOpacity>
+                </ScalePressable>
                 <ThemedText style={s.headerTitle}>Edit Measurement</ThemedText>
                 <Pressable style={[s.headerIcon, { opacity: 0 }]}>
                     <Ionicons name="ellipsis-vertical" size={20} color={theme.textGray} />
@@ -176,25 +181,23 @@ export default function EditMeasurementScreen() {
                 <View style={s.row}>
                     <View style={s.col2}>
                         <Text style={s.label}>DATE</Text>
-                        <TouchableOpacity
+                        <ScalePressable
                             style={s.pickerBox}
                             onPress={() => setPickerOpen('date')}
-                            activeOpacity={0.75}
                         >
                             <Text style={s.pickerText}>{displayDate}</Text>
                             <Ionicons name="calendar-outline" size={18} color={theme.textGray} />
-                        </TouchableOpacity>
+                        </ScalePressable>
                     </View>
                     <View style={s.col2}>
                         <Text style={s.label}>TIME</Text>
-                        <TouchableOpacity
+                        <ScalePressable
                             style={s.pickerBox}
                             onPress={() => setPickerOpen('time')}
-                            activeOpacity={0.75}
                         >
                             <Text style={s.pickerText}>{displayTime}</Text>
                             <Ionicons name="time-outline" size={18} color={theme.textGray} />
-                        </TouchableOpacity>
+                        </ScalePressable>
                     </View>
                 </View>
 

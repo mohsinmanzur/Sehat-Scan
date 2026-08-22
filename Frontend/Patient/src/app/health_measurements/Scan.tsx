@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Animated, ActivityIndicator, Pressable, Platform } from 'react-native';
+import { StyleSheet, View, Animated, ActivityIndicator, Pressable, Platform } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
+import { handleError } from 'src/utils/errorHandler';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { ThemedButton, ThemedText, ThemedView } from "src/components";
@@ -59,7 +61,7 @@ export default function ScanDocument() {
             setScannedImage(result.assets[0].uri);
             router.back();
         } catch (error) {
-            console.error('Error picking image from gallery:', error);
+            handleError(error);
             if (Platform.OS === 'web') router.back();
         } finally {
             setIsProcessing(false);
@@ -94,7 +96,7 @@ export default function ScanDocument() {
         }
         catch (error)
         {
-            console.error('Error capturing or uploading photo:', error);
+            handleError(error);
         }
         finally
         {
@@ -191,33 +193,32 @@ export default function ScanDocument() {
         {/* Camera Controls / Shutter Button */}
         <View style={styles.bottomControls}>
             {/* Gallery Button */}
-            <TouchableOpacity
+            <ScalePressable
                 style={styles.iconButton}
                 onPress={pickFromGallery}
                 disabled={isProcessing}
             >
                 <Ionicons name="images-outline" size={32} color="#FFFFFF" />
-            </TouchableOpacity>
+            </ScalePressable>
 
             {/* Shutter Button */}
-            <TouchableOpacity 
+            <ScalePressable 
                 style={[styles.shutterButtonOuter, isProcessing && { opacity: 0.5 }]} 
-                activeOpacity={0.7}
                 disabled={isProcessing}
                 onPress={takePicture}
             >
                 <View style={styles.shutterButtonInner} />
-            </TouchableOpacity>
+            </ScalePressable>
 
             {/* Flip Camera Button */}
-            <TouchableOpacity 
+            <ScalePressable 
                 style={styles.iconButton} 
                 onPress={() => {
                     setFacing(prev => prev === 'back' ? 'front' : 'back');
                 }}
             >
                 <Ionicons name="camera-reverse-outline" size={36} color="#FFFFFF" />
-            </TouchableOpacity>
+            </ScalePressable>
         </View>
 
         {isProcessing && (

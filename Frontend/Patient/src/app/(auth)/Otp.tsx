@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useCurrentPatient } from '@context/PatientContext';
 import { useTheme } from '../../context/ThemeContext';
 import backend from '../../services/Backend/backend.service';
-import Toast from 'react-native-toast-message';
+import { handleError } from 'src/utils/errorHandler';
 import { Spacer, ThemedButton, ThemedText, ThemedView } from '../../components';
 import { Ionicons } from '@expo/vector-icons';
 import { OtpInput } from "react-native-otp-entry";
@@ -42,13 +42,10 @@ const OtpScreen: React.FC = () => {
 
             setIsLoading(false);
         }
-        catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Verification failed',
-                text2: error.message,
-                position: 'bottom',
-                visibilityTime: 3000,
+        catch (error: any) {
+            handleError(error, {
+                userMessage: `Verification failed: ${error.message}`,
+                backgroundColor: theme.danger,
             });
             setIsLoading(false);
             return;

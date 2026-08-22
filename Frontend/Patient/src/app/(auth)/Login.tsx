@@ -7,13 +7,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { errorShakeAnimation } from '../../animations/animations';
 import { phoneRegex, emailRegex } from '../../constants/regex';
 import { useRouter } from 'expo-router';
+import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
+import { GOOGLE_WEB_CLIENT_ID } from '@env';
+import { useCurrentPatient } from '@context/PatientContext';
+import { storeObject } from '../../services/Storage/storage.service';
+import { handleError } from 'src/utils/errorHandler';
+
+GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
 
 const LoginScreen: React.FC = () => {
     const router = useRouter();
     const { theme, mode } = useTheme();
+    const { setCurrentPatient } = useCurrentPatient();
 
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const [showError, setShowError] = useState(false);
 
     const shakeAnimation = useRef(new Animated.Value(0)).current;
@@ -34,10 +43,43 @@ const LoginScreen: React.FC = () => {
             router.push({ pathname: '/Otp', params: { patientEmail: email } });
         }
         catch (error) {
-            console.log('Error requesting code:', error.message);
+            handleError(error);
         }
         finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setIsGoogleLoading(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+
+            if (!isSuccessResponse(response)) return;
+
+            const { idToken, user } = response.data;
+            if (!idToken) throw new Error('No ID token returned from Google');
+
+            const authResponse = await backend.googleAuth(idToken);
+
+            if (authResponse.needsRegistration) {
+                router.replace({ pathname: '/Signup', params: { patientEmail: user.email, patientName: user.name ?? '' } });
+                return;
+            }
+
+            const patient = await backend.getPatientByEmail(user.email);
+            setCurrentPatient(patient);
+            await storeObject('currentPatient', patient);
+        }
+        catch (error: any) {
+            handleError(error, {
+                userMessage: `Google sign-in failed: ${error.message}`,
+                backgroundColor: theme.danger,
+            });
+        }
+        finally {
+            setIsGoogleLoading(false);
         }
     };
 
@@ -112,11 +154,17 @@ const LoginScreen: React.FC = () => {
 
                     <ThemedButton
                         style={[styles.googleButton, { backgroundColor: theme.card }]}
-                        disabled={isLoading}
+                        onPress={handleGoogleSignIn}
+                        disabled={isLoading || isGoogleLoading}
                     >
-
-                        <Ionicons name="logo-google" size={19} color={theme.textGray} />
-                        <ThemedText style={{ color: theme.textGray, padding: 7, fontFamily: 'PublicSans_600SemiBold' }}>Continue with Google</ThemedText>
+                        {isGoogleLoading ? (
+                            <ActivityIndicator color={theme.textGray} style={{ padding: 6.5 }} />
+                        ) : (
+                            <>
+                                <Ionicons name="logo-google" size={19} color={theme.textGray} />
+                                <ThemedText style={{ color: theme.textGray, padding: 7, fontFamily: 'PublicSans_600SemiBold' }}>Continue with Google</ThemedText>
+                            </>
+                        )}
                     </ThemedButton>
                 </View>
             </ScrollView>

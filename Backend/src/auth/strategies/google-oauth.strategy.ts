@@ -29,11 +29,6 @@ export class GoogleAuthService {
 
       const { email, given_name, family_name, picture, sub: googleId } = payload;
 
-      // Database Logic Integration:
-      // 1. Query your DB to see if a user exists with this `email` or `googleId`
-      // 2. If no user exists, create a new record using the destructured data above
-      // 3. Return the user record
-
       return {
         email,
         firstName: given_name,

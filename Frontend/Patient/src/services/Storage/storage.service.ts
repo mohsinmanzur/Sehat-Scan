@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { handleError } from 'src/utils/errorHandler';
 
 // 1. Storing a String
 export const storeString = async (key: string, value: string) => {
   try {
     await AsyncStorage.setItem(key, value);
   } catch (e) {
-    console.error('Error storing string:', e);
+    handleError(e);
   }
 };
 
@@ -15,7 +16,7 @@ export const storeObject = async (key: string, value: object) => {
     const jsonValue = JSON.stringify(value);
     await AsyncStorage.setItem(key, jsonValue);
   } catch (e) {
-    console.error('Error storing object:', e);
+    handleError(e);
   }
 };
 
@@ -25,7 +26,7 @@ export const getString = async (key: string) => {
     const value = await AsyncStorage.getItem(key);
     return value; // Returns string or null
   } catch (e) {
-    console.error('Error reading string:', e);
+    handleError(e);
     return null;
   }
 };
@@ -36,7 +37,7 @@ export const getObject = async <T>(key: string): Promise<T | null> => {
     const jsonValue = await AsyncStorage.getItem(key);
     return jsonValue != null ? JSON.parse(jsonValue) : null;
   } catch (e) {
-    console.error('Error reading object:', e);
+    handleError(e);
     return null;
   }
 };
@@ -46,7 +47,7 @@ export const removeValue = async (key: string) => {
   try {
     await AsyncStorage.removeItem(key);
   } catch (e) {
-    console.error('Error removing value:', e);
+    handleError(e);
   }
 };
 
@@ -55,6 +56,6 @@ export const clearAll = async () => {
   try {
     await AsyncStorage.clear();
   } catch (e) {
-    console.error('Error clearing storage:', e);
+    handleError(e);
   }
 };

@@ -8,7 +8,6 @@ import { router } from "expo-router";
 import {
     StyleSheet,
     View,
-    TouchableOpacity,
     Linking,
     Switch,
     Alert,
@@ -167,11 +166,11 @@ const ProfileScreen: React.FC = () => {
                 <ThemedText style={styles.contactText}>
                     If you have any other query you{"\n"}can reach out to us.
                 </ThemedText>
-                <TouchableOpacity
+                <ScalePressable
                     onPress={() => Linking.openURL("https://wa.me/+923472689456")}
                 >
                     <ThemedText style={styles.whatsappLink}>WhatsApp Us</ThemedText>
-                </TouchableOpacity>
+                </ScalePressable>
             </View>
         </ThemedView>
     );

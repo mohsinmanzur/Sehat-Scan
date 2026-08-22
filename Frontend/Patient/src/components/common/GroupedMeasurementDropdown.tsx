@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useState } from 'react';
 import {
     View,
     Text,
-    TouchableOpacity,
     StyleSheet,
     ScrollView,
     Animated,
@@ -121,12 +120,11 @@ export function GroupedMeasurementDropdown({
     });
 
     const trigger = (
-        <TouchableOpacity
+        <ScalePressable
             style={[s.trigger, { borderColor: error ? theme.danger : theme.card }]}
             onPress={() => {
                 if (!open) toggleOpen();
             }}
-            activeOpacity={open ? 1 : 0.8}
         >
             {open ? (
                 <View style={s.triggerSearchContainer}>
@@ -157,7 +155,7 @@ export function GroupedMeasurementDropdown({
                     <Ionicons name="chevron-down" size={18} color={theme.textGray} />
                 </Animated.View>
             </ScalePressable>
-        </TouchableOpacity>
+        </ScalePressable>
     );
 
     return (
@@ -167,9 +165,9 @@ export function GroupedMeasurementDropdown({
             {onRemove ? (
                 <View style={s.triggerRow}>
                     <View style={{ flex: 1 }}>{trigger}</View>
-                    <TouchableOpacity style={s.removeBtn} onPress={onRemove} hitSlop={8}>
+                    <ScalePressable style={s.removeBtn} onPress={onRemove} hitSlop={8}>
                         <Ionicons name="close" size={26} color={theme.danger} />
-                    </TouchableOpacity>
+                    </ScalePressable>
                 </View>
             ) : trigger}
 
@@ -201,7 +199,7 @@ export function GroupedMeasurementDropdown({
                                         const isLast = idx === section.data.length - 1;
 
                                         return (
-                                            <TouchableOpacity
+                                            <ScalePressable
                                                 key={unit.id ?? unit.unit_name}
                                                 style={[
                                                     s.item,
@@ -209,7 +207,6 @@ export function GroupedMeasurementDropdown({
                                                     isLast && s.itemLast,
                                                 ]}
                                                 onPress={() => handleSelect(unit)}
-                                                activeOpacity={0.7}
                                             >
                                                 <Text
                                                     style={[
@@ -219,7 +216,7 @@ export function GroupedMeasurementDropdown({
                                                 >
                                                     {unit.unit_name}
                                                 </Text>
-                                            </TouchableOpacity>
+                                            </ScalePressable>
                                         );
                                     })}
                                 </View>

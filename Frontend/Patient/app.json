@@ -63,7 +63,8 @@
         }
       ],
       "@react-native-firebase/app",
-      "@react-native-firebase/analytics"
+      "@react-native-firebase/analytics",
+      "@react-native-google-signin/google-signin"
     ],
     "owner": "mohsin_manzoor",
     "updates": {

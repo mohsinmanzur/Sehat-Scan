@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
 
@@ -23,9 +24,9 @@ export const ShareCard: React.FC = () => {
           </View>
         </View>
         
-        <TouchableOpacity style={styles.sendButton}>
+        <ScalePressable style={styles.sendButton}>
           <Ionicons name="send" size={20} color="#FFFFFF" style={styles.iconShift} />
-        </TouchableOpacity>
+        </ScalePressable>
       </View>
     </View>
   );

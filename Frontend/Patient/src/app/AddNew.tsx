@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getAnalytics, logEvent } from '@react-native-firebase/analytics';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Pressable, Animated, BackHandler, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Animated, BackHandler, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import { useCurrentPatient } from '@context/PatientContext';
 import { formatOrdinalDate, formatTime } from 'src/utils/date';
 import { errorShakeAnimation } from 'src/animations/animations';
 import { ScalePressable } from 'src/components/ScalePressable';
+import { handleError } from 'src/utils/errorHandler';
 import { useGlobalContext } from 'src/context/GlobalContext';
 import { Snackbar } from 'react-native-snackbar';
 import { MeasurementUnit } from '../types/types';
@@ -258,12 +259,11 @@ export default function AddNewMeasurement() {
                 backgroundColor: theme.primary,
             });
             setScannedImage(null);
-        } catch (error) {
-            Snackbar.show({
-                text: savedCount > 0
+        } catch (error: any) {
+            handleError(error, {
+                userMessage: savedCount > 0
                     ? `Saved ${savedCount} of ${rows.length} — failed: ${error.message}`
                     : `Failed to add measurement: ${error.message}`,
-                duration: Snackbar.LENGTH_SHORT,
                 backgroundColor: theme.danger,
             });
             throw new Error(error);
@@ -282,9 +282,9 @@ export default function AddNewMeasurement() {
         <ThemedView style={[s.root, { paddingTop: insets.top }]}>
             {/* ── Custom Header ── */}
             <View style={s.header}>
-                <TouchableOpacity onPress={handleBack} style={s.headerIcon}>
+                <ScalePressable onPress={handleBack} style={s.headerIcon}>
                     <Ionicons name="arrow-down" size={22} color={theme.textGray} />
-                </TouchableOpacity>
+                </ScalePressable>
                 <ThemedText style={s.headerTitle}>Add Measurement</ThemedText>
                 <Pressable style={[s.headerIcon, { opacity: 0 }]}>
                     <Ionicons name="ellipsis-vertical" size={20} color={theme.textGray} />
@@ -394,25 +394,23 @@ export default function AddNewMeasurement() {
                 <View style={s.row}>
                     <View style={s.col2}>
                         <Text style={s.label}>DATE</Text>
-                        <TouchableOpacity
+                        <ScalePressable
                             style={s.pickerBox}
                             onPress={() => setPickerOpen('date')}
-                            activeOpacity={0.75}
                         >
                             <Text style={s.pickerText} numberOfLines={1}>{formatOrdinalDate(selectedDate)}</Text>
                             <Ionicons name="calendar-outline" size={18} color={theme.textGray} />
-                        </TouchableOpacity>
+                        </ScalePressable>
                     </View>
                     <View style={s.col2}>
                         <Text style={s.label}>TIME</Text>
-                        <TouchableOpacity
+                        <ScalePressable
                             style={s.pickerBox}
                             onPress={() => setPickerOpen('time')}
-                            activeOpacity={0.75}
                         >
                             <Text style={s.pickerText} numberOfLines={1}>{formatTime(selectedDate)}</Text>
                             <Ionicons name="time-outline" size={18} color={theme.textGray} />
-                        </TouchableOpacity>
+                        </ScalePressable>
                     </View>
                 </View>
 

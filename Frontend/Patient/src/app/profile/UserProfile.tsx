@@ -17,7 +17,8 @@ import {
 } from "react-native";
 import { Spacer, ThemedText, ThemedView } from "src/components";
 import { ScalePressable } from "src/components/ScalePressable";
-import Toast from "react-native-toast-message";
+import { Snackbar } from "react-native-snackbar";
+import { handleError } from "src/utils/errorHandler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const UserProfileScreen: React.FC = () => {
@@ -44,13 +45,17 @@ const UserProfileScreen: React.FC = () => {
         try {
             // TODO: wire up actual update API
             await new Promise((res) => setTimeout(res, 800)); // simulate API
-            Toast.show({
-                type: "success",
-                text1: "Profile updated",
-                text2: "Your changes have been saved.",
+            Snackbar.show({
+                text: 'Profile updated: Your changes have been saved.',
+                duration: Snackbar.LENGTH_SHORT,
+                backgroundColor: theme.success,
+                textColor: '#FFFFFF',
             });
-        } catch {
-            Toast.show({ type: "error", text1: "Failed to save changes." });
+        } catch (error) {
+            handleError(error, {
+                userMessage: 'Failed to save changes.',
+                backgroundColor: theme.danger,
+            });
         } finally {
             setIsSaving(false);
         }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { MeasurementUnit } from '../types/types';
 import { useDatabase } from '../context/DatabaseContext';
 import { getAllMeasurementUnits } from '../services/Database/units.repository';
+import { handleError } from 'src/utils/errorHandler';
 
 export function useMeasurementUnits() {
     const { db } = useDatabase();
@@ -18,7 +19,8 @@ export function useMeasurementUnits() {
             const data = await getAllMeasurementUnits(db);
             setUnits(data);
             setIsLoading(false);
-        } catch {
+        } catch (error) {
+            handleError(error);
             setIsLoading(false);
         }
     }, [db]);

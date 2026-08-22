@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
 
@@ -23,9 +24,9 @@ export const InsightCard: React.FC = () => {
           Your blood glucose trends have improved by 12% over the last 3 months. Keep following your current nutrition plan.
         </Text>
 
-        <TouchableOpacity style={styles.button}>
+        <ScalePressable style={styles.button}>
           <Text style={[styles.buttonText, { color: theme.primary }]}>Read Full Analysis</Text>
-        </TouchableOpacity>
+        </ScalePressable>
       </View>
     </View>
   );

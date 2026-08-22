@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Pressable,
   Modal,
   Animated,
 } from 'react-native';
+import { ScalePressable } from 'src/components/ScalePressable';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'src/context/ThemeContext';
 import { QRCodeCard } from './qr-code';
@@ -62,14 +62,13 @@ export const QRCodeButton: React.FC = () => {
 
   return (
     <>
-      <TouchableOpacity
+      <ScalePressable
         style={[styles.qrButton, { backgroundColor: theme.primarySoft }]}
         onPress={openModal}
-        activeOpacity={0.75}
       >
         <Ionicons name="qr-code" size={20} color={theme.primary} />
         <Text style={[styles.qrButtonLabel, { color: theme.primary }]}>My QR</Text>
-      </TouchableOpacity>
+      </ScalePressable>
 
       {/* ── QR overlay ─────────────────────────────────────────────────────── */}
       <Modal

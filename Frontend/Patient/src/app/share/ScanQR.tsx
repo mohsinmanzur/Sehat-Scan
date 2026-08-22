@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, View, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Animated } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { ThemedButton, ThemedText, ThemedView } from "src/components";
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -169,17 +169,16 @@ export default function ScanQR() {
 
             {hasScanned && (
                 <View style={styles.rescanContainer}>
-                    <TouchableOpacity
+                    <ScalePressable
                         style={[styles.rescanButton, { backgroundColor: theme.primary }]}
                         onPress={() => {
                             setHasScanned(false);
                             setQrBounds(null);
                         }}
-                        activeOpacity={0.8}
                     >
                         <Ionicons name="scan-outline" size={20} color="#FFFFFF" />
                         <ThemedText style={styles.rescanText}>Scan Again</ThemedText>
-                    </TouchableOpacity>
+                    </ScalePressable>
                 </View>
             )}
         </CameraView>

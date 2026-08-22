@@ -4,6 +4,7 @@ import { useDatabase } from '../context/DatabaseContext';
 import { useNetwork } from '../context/NetworkContext';
 import { getMeasurementsByPatient } from '../services/Database/measurements.repository';
 import { syncMeasurements } from '../services/Sync/sync.service';
+import { handleError } from 'src/utils/errorHandler';
 
 export function useMeasurements(patientId: string | undefined) {
     const { db } = useDatabase();
@@ -32,7 +33,8 @@ export function useMeasurements(patientId: string | undefined) {
                 setMeasurements(cached);
                 setIsLoading(false);
             }
-        } catch {
+        } catch (error) {
+            handleError(error);
             if (isMounted.current) setIsLoading(false);
         }
     }, [db, patientId]);

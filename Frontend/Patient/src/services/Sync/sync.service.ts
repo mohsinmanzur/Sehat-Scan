@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { handleError } from 'src/utils/errorHandler';
 import type { HealthMeasurement } from '../../types/types';
 import backend from '../Backend/backend.service';
 import {
@@ -36,8 +37,9 @@ export async function syncMeasurements(
             await upsertMeasurements(db, measurements);
         }
         await pruneDeletedMeasurements(db, patientId, measurements ?? []);
-    } catch {
-        // silently fail — offline data already in SQLite
+    } catch (error) {
+        handleError(error);
+        // offline — SQLite data already in place
     }
 }
 
@@ -72,8 +74,9 @@ export async function syncUnitsAndRanges(db: SQLite.SQLiteDatabase): Promise<voi
         ]);
         if (units?.length) await upsertMeasurementUnits(db, units);
         if (ranges?.length) await upsertReferenceRanges(db, ranges);
-    } catch {
-        // silently fail
+    } catch (error) {
+        handleError(error);
+        // offline — unit/range data may already be cached
     }
 }
 
@@ -86,8 +89,9 @@ export async function syncShares(
         if (grants) {
             await upsertAccessGrants(db, grants, patientId);
         }
-    } catch {
-        // silently fail
+    } catch (error) {
+        handleError(error);
+        // offline — shares data may already be cached
     }
 }
 
@@ -101,8 +105,9 @@ export async function syncDocuments(
             await upsertDocuments(db, docs, patientId);
             await ensureLocalDocumentImages(db, docs);
         }
-    } catch {
-        // silently fail
+    } catch (error) {
+        handleError(error);
+        // offline — document data may already be cached
     }
 }
 
@@ -113,7 +118,8 @@ export async function syncPatientProfile(
     try {
         const patient = await backend.getPatientById(patientId);
         if (patient) await upsertPatient(db, patient);
-    } catch {
-        // silently fail
+    } catch (error) {
+        handleError(error);
+        // offline — patient profile may already be cached
     }
 }

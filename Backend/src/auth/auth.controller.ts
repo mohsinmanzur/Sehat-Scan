@@ -113,18 +113,18 @@ export class AuthController {
   }
 
   @Post('google')
+  @HttpCode(202)
   async googleLogin(@Body('idToken') idToken: string) {
-    // 1. Verify the frontend's token and retrieve/create the user
-    const userDetails = await this.googleAuthService.verifyGoogleToken(idToken);
+    if (!idToken) throw new UnauthorizedException('idToken is required');
 
-    // 2. Generate your backend's internal JWT (using @nestjs/jwt)
-    //const appToken = this.jwtService.sign({ userId: userDetails.id });
+    const { email } = await this.googleAuthService.verifyGoogleToken(idToken);
 
-    // 3. Return the payload to the React Native app
-    return {
-      message: 'Authentication successful',
-      user: userDetails,
-      // accessToken: appToken 
-    };
+    if (!email) throw new UnauthorizedException('Google account has no email');
+
+    const patient = await this.patientService.getPatientByEmail(email);
+
+    if (!patient) throw new NotFoundException('Please register this patient first at /auth/register');
+
+    return await this.authService.signTokens(patient.id);
   }
 }
